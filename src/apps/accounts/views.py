@@ -25,7 +25,7 @@ class RegisterView(CreateView):
 
     def form_valid(self, form):
         response = super().form_valid(form)
-        login(self.request, self.object)
+        login(self.request, self.object, backend='apps.accounts.backends.EmailBackend')
         return response
 
 
