@@ -70,7 +70,7 @@
                             {% for item in order.line_items.all %}
                             <div class="flex-shrink-0 w-16 h-20 bg-muted/5 rounded border border-muted/10 relative group">
                                 {% if item.product.images.all %}
-                                <img src="{{ item.product.images.all.0.image_file.url }}" class="w-full h-full object-cover rounded" loading="lazy">
+                                <img src="{{ item.product.images.all.0.url }}" class="w-full h-full object-cover rounded" loading="lazy">
                                 {% endif %}
                                 <div class="absolute inset-0 bg-text/80 text-surface text-[10px] opacity-0 group-hover:opacity-100 flex items-center justify-center p-1 text-center transition-opacity">
                                     {{ item.product.name|truncatechars:15 }}

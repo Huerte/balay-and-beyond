@@ -25,12 +25,18 @@
         
         <div class="w-full lg:w-3/5 space-y-4">
             
-            <div class="relative w-full aspect-[4/5] bg-muted/5 rounded-lg overflow-hidden group">
+            <div class="relative w-full aspect-[4/5] bg-muted/5 rounded-lg overflow-hidden group cursor-pointer" onclick="openLightbox()">
                 {% if product_images %}
-                <img id="main-product-image" src="{{ product_images.0.url }}" alt="{{ product.name }}" class="w-full h-full object-cover transition-transform duration-500 lg:group-hover:scale-150 origin-center cursor-zoom-in" loading="lazy">
+                <img id="main-product-image" src="{{ product_images.0.url }}" alt="{{ product.name }}" class="w-full h-full object-cover hover:opacity-95 transition-opacity" loading="lazy">
                 {% else %}
-                <img id="main-product-image" src="https://picsum.photos/id/{{ product.id|default:1 }}/800/1000" alt="{{ product.name }}" class="w-full h-full object-cover transition-transform duration-500 lg:group-hover:scale-150 origin-center cursor-zoom-in" loading="lazy">
+                <img id="main-product-image" src="https://picsum.photos/id/{{ product.id|default:1 }}/800/1000" alt="{{ product.name }}" class="w-full h-full object-cover hover:opacity-95 transition-opacity" loading="lazy">
                 {% endif %}
+                
+                <div class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors flex items-center justify-center pointer-events-none">
+                    <div class="bg-surface/90 text-text p-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity transform scale-90 group-hover:scale-100 duration-300 shadow-lg">
+                        <i data-lucide="zoom-in" class="w-6 h-6"></i>
+                    </div>
+                </div>
             </div>
             
             
@@ -62,11 +68,11 @@
             <div class="flex items-center gap-3 mb-6">
                 <div class="flex text-primary">
                     {% for i in "12345" %}
-                        <i data-lucide="star" class="w-4 h-4 {% if forloop.counter <= product.rating|default:5 %}fill-primary{% endif %}"></i>
+                        <i data-lucide="star" class="w-4 h-4 {% if forloop.counter <= product.average_rating|default:0 %}fill-primary{% endif %}"></i>
                     {% endfor %}
                 </div>
                 <a href="#reviews-tab" onclick="switchTab('reviews')" class="text-sm text-muted hover:text-primary transition-colors focus:outline-none focus:ring-1 focus:ring-primary rounded px-1">
-                    {{ product.reviews.count|default:124 }} reviews
+                    {{ product.reviews.count|default:0 }} reviews
                 </a>
             </div>
 
@@ -97,7 +103,7 @@
                 </div>
                 
                 
-                <button type="button" onclick="if(window.cartApi) cartApi.add('{{ product.id }}', parseInt(document.getElementById('qty').value))" class="flex-grow h-14 bg-primary text-surface font-bold uppercase tracking-widest rounded hover:bg-muted transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 flex items-center justify-center gap-2">
+                <button type="button" onclick="if(window.handleAddToCart) handleAddToCart('{{ product.id }}', parseInt(document.getElementById('qty').value), null, this)" class="flex-grow h-14 bg-primary text-surface font-bold uppercase tracking-widest rounded hover:bg-muted transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 flex items-center justify-center gap-2">
                     <i data-lucide="shopping-bag" class="w-5 h-5"></i> Add to Cart
                 </button>
 
@@ -179,12 +185,51 @@
                 <div class="flex items-center justify-between mb-8">
                     <div>
                         <h3 class="font-serif text-2xl text-text">Customer Reviews</h3>
-                        <p class="text-muted text-sm mt-1">Based on {{ product.reviews.count|default:0 }} reviews</p>
+                        <p class="text-muted text-sm mt-1">Based on {{ product.reviews.count }} reviews</p>
                     </div>
-                    <button class="px-6 py-3 border border-muted/30 text-xs font-bold uppercase tracking-widest rounded hover:border-primary hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary">
+                    {% if user.is_authenticated %}
+                    <button id="review-toggle-btn" onclick="toggleReviewForm()" class="px-6 py-3 border border-muted/30 text-xs font-bold uppercase tracking-widest rounded hover:border-primary hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary">
                         Write a Review
                     </button>
+                    {% else %}
+                    <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="px-6 py-3 border border-muted/30 text-xs font-bold uppercase tracking-widest rounded hover:border-primary hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary">
+                        Sign in to Review
+                    </a>
+                    {% endif %}
                 </div>
+
+                <!-- Inline Review Form -->
+                {% if user.is_authenticated %}
+                <div id="review-form-panel" class="hidden mb-10 bg-muted/5 border border-muted/20 rounded-2xl p-8">
+                    <h4 class="font-serif text-xl text-text mb-6">Your Review</h4>
+                    <form method="POST" action="{% url 'store:submit_review' product.slug %}">
+                        {% csrf_token %}
+                        <div class="mb-6">
+                            <label class="block text-xs font-bold uppercase tracking-widest text-muted mb-3">Rating</label>
+                            <div class="flex gap-2" id="star-picker">
+                                {% for i in "12345" %}
+                                <button type="button" data-star="{{ forloop.counter }}" class="star-btn text-muted/30 hover:text-primary transition-colors focus:outline-none" aria-label="Rate {{ forloop.counter }} stars">
+                                    <i data-lucide="star" class="w-8 h-8"></i>
+                                </button>
+                                {% endfor %}
+                            </div>
+                            <input type="hidden" name="rating" id="rating-input" value="" required>
+                        </div>
+                        <div class="mb-6">
+                            <label for="review-body" class="block text-xs font-bold uppercase tracking-widest text-muted mb-3">Your Thoughts</label>
+                            <textarea id="review-body" name="body" rows="4" class="w-full bg-surface border border-muted/30 rounded-lg px-4 py-3 text-text placeholder-muted/50 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all resize-none" placeholder="Share what you liked or disliked about this product..."></textarea>
+                        </div>
+                        <div class="flex gap-4">
+                            <button type="submit" class="px-8 py-3 bg-primary text-surface font-bold uppercase tracking-widest text-xs rounded hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                                Submit Review
+                            </button>
+                            <button type="button" onclick="toggleReviewForm()" class="px-8 py-3 border border-muted/30 text-text font-bold uppercase tracking-widest text-xs rounded hover:border-primary hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                {% endif %}
 
                 <div class="space-y-8">
                     {% if product.reviews.all %}
@@ -246,6 +291,18 @@
     {% endif %}
 
 </div>
+
+<!-- Lightbox Modal -->
+<div id="image-lightbox" class="fixed inset-0 z-[100] hidden bg-text/95 flex items-center justify-center opacity-0 transition-opacity duration-300 backdrop-blur-sm">
+    <button onclick="closeLightbox()" class="absolute top-6 right-6 text-surface/70 hover:text-surface focus:outline-none z-10 transition-colors">
+        <span class="sr-only">Close</span>
+        <i data-lucide="x" class="w-8 h-8"></i>
+    </button>
+    <div class="relative w-full h-full p-4 md:p-12 flex items-center justify-center" onclick="closeLightbox()">
+        <img id="lightbox-image" src="" alt="Product View" class="max-w-full max-h-full object-contain rounded shadow-2xl" onclick="event.stopPropagation()">
+    </div>
+</div>
+
 {% endblock %}
 
 {% block extra_scripts %}
@@ -266,26 +323,102 @@
         lucide.createIcons();
     }
 
-    // Desktop Image Zoom
-    const mainImgContainer = document.querySelector('.cursor-zoom-in').parentElement;
-    const mainImg = document.getElementById('main-product-image');
+    // Review form toggle
+    function toggleReviewForm() {
+        const panel = document.getElementById('review-form-panel');
+        const btn = document.getElementById('review-toggle-btn');
+        if (!panel) return;
+        const isHidden = panel.classList.contains('hidden');
+        panel.classList.toggle('hidden');
+        if (btn) btn.textContent = isHidden ? 'Cancel' : 'Write a Review';
+        if (isHidden) panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
 
-    mainImgContainer.addEventListener('mousemove', function(e) {
-        if(window.innerWidth >= 1024) { // Only on desktop
-            const bounds = this.getBoundingClientRect();
-            const x = e.clientX - bounds.left;
-            const y = e.clientY - bounds.top;
-            const xPercent = (x / bounds.width) * 100;
-            const yPercent = (y / bounds.height) * 100;
-            
-            mainImg.style.transformOrigin = `${xPercent}% ${yPercent}%`;
-        }
+    // Star picker
+    document.addEventListener('DOMContentLoaded', () => {
+        const stars = document.querySelectorAll('.star-btn');
+        const ratingInput = document.getElementById('rating-input');
+
+        stars.forEach(star => {
+            star.addEventListener('click', () => {
+                const val = parseInt(star.dataset.star);
+                if (ratingInput) ratingInput.value = val;
+                stars.forEach(s => {
+                    const icon = s.querySelector('svg') || s.querySelector('i');
+                    if (icon) {
+                        if (parseInt(s.dataset.star) <= val) {
+                            icon.classList.add('fill-primary', 'text-primary');
+                            icon.classList.remove('text-muted/30');
+                        } else {
+                            icon.classList.remove('fill-primary', 'text-primary');
+                            icon.classList.add('text-muted/30');
+                        }
+                    }
+                });
+            });
+
+            // Hover preview
+            star.addEventListener('mouseenter', () => {
+                const val = parseInt(star.dataset.star);
+                stars.forEach(s => {
+                    const icon = s.querySelector('svg') || s.querySelector('i');
+                    if (icon) {
+                        if (parseInt(s.dataset.star) <= val) {
+                            icon.classList.add('text-primary');
+                        } else {
+                            icon.classList.remove('text-primary');
+                        }
+                    }
+                });
+            });
+
+            star.addEventListener('mouseleave', () => {
+                const selected = ratingInput && ratingInput.value ? parseInt(ratingInput.value) : 0;
+                stars.forEach(s => {
+                    const icon = s.querySelector('svg') || s.querySelector('i');
+                    if (icon) {
+                        if (parseInt(s.dataset.star) <= selected) {
+                            icon.classList.add('fill-primary', 'text-primary');
+                        } else {
+                            icon.classList.remove('fill-primary', 'text-primary');
+                            icon.classList.add('text-muted/30');
+                        }
+                    }
+                });
+            });
+        });
     });
 
-    mainImgContainer.addEventListener('mouseleave', function() {
-        if(window.innerWidth >= 1024) {
-            mainImg.style.transformOrigin = 'center center';
+    // Lightbox Logic
+    function openLightbox() {
+        const modal = document.getElementById('image-lightbox');
+        const mainImg = document.getElementById('main-product-image');
+        const lightboxImg = document.getElementById('lightbox-image');
+        
+        lightboxImg.src = mainImg.src;
+        modal.classList.remove('hidden');
+        
+        // Small delay to allow display block to apply before transition
+        setTimeout(() => {
+            modal.classList.remove('opacity-0');
+        }, 10);
+        document.body.style.overflow = 'hidden'; // Prevent scrolling
+    }
+
+    function closeLightbox() {
+        const modal = document.getElementById('image-lightbox');
+        modal.classList.add('opacity-0');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            document.body.style.overflow = ''; // Restore scrolling
+        }, 300);
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeLightbox();
         }
     });
 </script>
 {% endblock %}
+

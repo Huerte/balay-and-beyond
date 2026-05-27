@@ -6,7 +6,8 @@
 const CHECKOUT_STATE = {
     currentStep: 1,
     shippingCost: 0,
-    shippingName: 'Standard (3-5 Days)'
+    shippingName: 'Standard (3-5 Days)',
+    paymentMethod: 'cod'
 };
 
 const UI_SELECTORS = {
@@ -38,8 +39,21 @@ function validateActiveStep(stepIndex) {
     }
     
     if (stepIndex === 3) {
-        const cardFields = ['card_number', 'card_expiry', 'card_cvv', 'card_name'];
-        return cardFields.every(id => document.getElementById(id)?.value.trim().length > 0);
+        if (CHECKOUT_STATE.paymentMethod === 'card') {
+            const cardFields = ['card_number', 'card_expiry', 'card_cvv', 'card_name'];
+            let isDataValid = true;
+            cardFields.forEach(id => {
+                const node = document.getElementById(id);
+                if (!node || !node.value.trim()) {
+                    node?.classList.add('border-danger');
+                    isDataValid = false;
+                } else {
+                    node?.classList.remove('border-danger');
+                }
+            });
+            return isDataValid;
+        }
+        return true; // COD requires no fields
     }
     
     return true;
@@ -117,6 +131,17 @@ function refreshShippingSummary(fee, label) {
 }
 
 /**
+ * Updates the selected payment method and the summary text
+ */
+function selectPayment(methodId, methodLabel) {
+    CHECKOUT_STATE.paymentMethod = methodId;
+    const summary = document.getElementById('selected-payment-summary');
+    if (summary) {
+        summary.innerText = methodLabel;
+    }
+}
+
+/**
  * Orchestrates the mock payment simulation and form submission.
  */
 function runMockPaymentProcess() {
@@ -185,7 +210,8 @@ function configureInputMasks() {
 window.CheckoutController = {
     step: switchCheckoutStep,
     shipping: refreshShippingSummary,
-    pay: runMockPaymentProcess
+    pay: runMockPaymentProcess,
+    selectPayment: selectPayment
 };
 
 // Auto-init masks when the DOM is ready

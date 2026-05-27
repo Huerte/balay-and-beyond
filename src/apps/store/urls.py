@@ -7,7 +7,7 @@ app_name = 'store'
 urlpatterns = [
     path('', views.HomeView.as_view(), name='home'),
     path('shop/', views.ShopView.as_view(), name='shop'),
-    path('shop/category/<slug:slug>/', views.CategoryView.as_view(), name='category'),
+    path('shop/category/<slug:slug>/', views.CategoryRedirectView.as_view(), name='category'),
     path('product/<slug:slug>/', views.ProductDetailView.as_view(), name='product_detail'),
     path('product/<slug:slug>/review/', views.SubmitReviewView.as_view(), name='submit_review'),
 

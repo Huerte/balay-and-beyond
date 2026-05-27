@@ -6,9 +6,9 @@
 const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 
 const ENDPOINTS = {
-    CART_ADD: '/cart/add/',
-    CART_REMOVE: '/cart/remove/',
-    CART_UPDATE: '/cart/update/',
+    CART_ADD: '/orders/cart/add/',
+    CART_REMOVE: '/orders/cart/remove/',
+    CART_UPDATE: '/orders/cart/update/',
     WISHLIST_TOGGLE: '/api/wishlist/toggle/',
 };
 
