@@ -42,9 +42,9 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.addEventListener('click', async (e) => {
             e.preventDefault();
             const productId = btn.getAttribute('data-product-id');
-            const icon = btn.querySelector('i');
+            const icon = btn.querySelector('svg, i');
             
-            if (!productId || !window.StoreAPI) return;
+            if (!productId || !window.StoreAPI || !icon) return;
 
             // Optimistic UI toggle
             const isAdded = icon.classList.contains('fill-danger');
@@ -53,8 +53,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 const response = await window.StoreAPI.toggleWishlist(productId);
                 
                 // Update badge count globally
-                if (badge && response.count !== undefined) {
+                if (badge !== undefined && response.count !== undefined) {
                     badge.textContent = response.count;
+                    if (response.count > 0) {
+                        badge.classList.remove('hidden');
+                        badge.animate([
+                            { transform: 'scale(1)' },
+                            { transform: 'scale(1.4)' },
+                            { transform: 'scale(1)' }
+                        ], { duration: 300, easing: 'ease-out' });
+                    } else {
+                        badge.classList.add('hidden');
+                    }
                 }
                 
                 if (response.status === 'added') {

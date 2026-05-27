@@ -54,6 +54,11 @@ class Product(models.Model):
     def __str__(self):
         return self.name
 
+    @property
+    def average_rating(self):
+        avg = self.reviews.aggregate(models.Avg('rating'))['rating__avg']
+        return round(avg) if avg else 0
+
 
 class ProductImage(models.Model):
     product = models.ForeignKey(

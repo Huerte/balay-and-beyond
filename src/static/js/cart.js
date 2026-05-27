@@ -6,29 +6,51 @@
 const CART_BADGE_ID = 'cart-count-badge';
 
 /**
- * Updates the cart count indicator in the navigation bar.
+ * Updates the cart count badge. Never shows a 0.
  */
 function refreshCartBadge(newCount) {
     const badgeElement = document.getElementById(CART_BADGE_ID);
-    if (badgeElement) {
-        badgeElement.innerText = newCount;
-        
-        if (newCount > 0) {
-            badgeElement.classList.remove('hidden');
-        } else {
-            badgeElement.classList.add('hidden');
-        }
-        
-        // Subtle pulse animation for feedback
+    if (!badgeElement) return;
+
+    badgeElement.innerText = newCount;
+    if (newCount > 0) {
+        badgeElement.classList.remove('hidden');
         badgeElement.animate([
             { transform: 'scale(1)' },
-            { transform: 'scale(1.2)' },
+            { transform: 'scale(1.4)' },
             { transform: 'scale(1)' }
-        ], {
-            duration: 300,
-            easing: 'ease-out'
-        });
+        ], { duration: 300, easing: 'ease-out' });
+    } else {
+        badgeElement.classList.add('hidden');
     }
+}
+
+/**
+ * Shows a lightweight toast notification.
+ */
+function showCartToast(message, type = 'success') {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+
+    const colors = { success: 'bg-accent', error: 'bg-danger', info: 'bg-muted' };
+    const icons  = { success: 'check-circle', error: 'alert-circle', info: 'info' };
+
+    const toast = document.createElement('div');
+    toast.className = `toast-message pointer-events-auto flex items-center p-4 mb-2 text-surface rounded shadow-md transition-opacity duration-300 ${colors[type]}`;
+    toast.setAttribute('role', 'alert');
+    toast.innerHTML = `
+        <div class="mr-3"><i data-lucide="${icons[type]}" class="w-5 h-5"></i></div>
+        <div class="text-sm font-medium">${message}</div>
+        <button type="button" class="ml-4 flex-shrink-0 text-surface/80 hover:text-surface" onclick="this.parentElement.remove();">
+            <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+    `;
+    container.appendChild(toast);
+    if (window.lucide) lucide.createIcons();
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
 }
 
 /**
@@ -47,11 +69,11 @@ async function performAddToCart(productId, itemQuantity = 1, variantId = null, t
         const cartResponse = await window.StoreAPI.addToCart(productId, itemQuantity, variantId);
         if (cartResponse.ok) {
             refreshCartBadge(cartResponse.cart_count);
-            // Note: Toast notification logic would go here if implemented in base.html
+            showCartToast('Item added to your bag!');
         }
     } catch (cartError) {
         console.error('[Cart] Addition failed:', cartError);
-        alert('Unable to add item to your bag. Please try again.');
+        showCartToast('Unable to add item. Please try again.', 'error');
     } finally {
         if (triggerButton) {
             triggerButton.disabled = false;

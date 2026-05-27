@@ -46,19 +46,113 @@ class ShopView(ListView):
     paginate_by = 12
 
     def get_queryset(self):
-        products = services.get_published_products()
+        from .models import Category
+        qs = services.get_published_products()
+
+        # Category filter
+        category_slug = self.request.GET.get('category', '').strip()
+        if category_slug:
+            qs = qs.filter(category__slug=category_slug)
+
+        # Search
         search_term = self.request.GET.get('q', '').strip()
         if search_term:
-            products = products.filter(
+            qs = qs.filter(
                 Q(name__icontains=search_term) |
                 Q(description__icontains=search_term)
             )
-        return products
+
+        # Price filter — supports multiple values: ?price=under_1000&price=over_5000
+        price_filters = self.request.GET.getlist('price')
+        if price_filters:
+            price_q = Q()
+            for pf in price_filters:
+                if pf == 'under_1000':
+                    price_q |= Q(price__lt=1000)
+                elif pf == '1000_5000':
+                    price_q |= Q(price__gte=1000, price__lte=5000)
+                elif pf == 'over_5000':
+                    price_q |= Q(price__gt=5000)
+            qs = qs.filter(price_q)
+
+        # In-stock filter
+        if self.request.GET.get('in_stock') == '1':
+            qs = qs.filter(stock__gt=0)
+
+        # Sort
+        sort = self.request.GET.get('sort', 'newest')
+        if sort == 'price_low':
+            qs = qs.order_by('price')
+        elif sort == 'price_high':
+            qs = qs.order_by('-price')
+        elif sort == 'name':
+            qs = qs.order_by('name')
+        else:
+            qs = qs.order_by('-created_at')
+
+        return qs
 
     def get_context_data(self, **kwargs):
+        from .models import Category
+        from urllib.parse import urlencode
+
         context = super().get_context_data(**kwargs)
-        context['search_query'] = self.request.GET.get('q', '').strip()
+
+        # --- Active filter state ---
+        category_slug = self.request.GET.get('category', '').strip()
+        active_category = None
+        if category_slug:
+            try:
+                active_category = Category.objects.get(slug=category_slug)
+            except Category.DoesNotExist:
+                category_slug = ''
+
+        active_sort = self.request.GET.get('sort', 'newest')
+        active_prices = self.request.GET.getlist('price')
+        active_in_stock = self.request.GET.get('in_stock', '')
+        search_query = self.request.GET.get('q', '').strip()
+
+        context['active_category'] = active_category
+        context['active_category_slug'] = category_slug
+        context['active_sort'] = active_sort
+        context['active_prices'] = active_prices
+        context['active_in_stock'] = active_in_stock
+        context['search_query'] = search_query
+
+        # Count non-default active filters (sort excluded — it always has a value)
+        filter_count = (
+            (1 if category_slug else 0)
+            + len(active_prices)
+            + (1 if active_in_stock == '1' else 0)
+        )
+        context['active_filter_count'] = filter_count
+
+        # Build a query string of current filters WITHOUT the page param so
+        # pagination links can append &page=N cleanly.
+        qs_params = {}
+        if category_slug:
+            qs_params['category'] = category_slug
+        if active_sort and active_sort != 'newest':
+            qs_params['sort'] = active_sort
+        if active_prices:
+            qs_params['price'] = active_prices  # urlencode handles lists with doseq
+        if active_in_stock == '1':
+            qs_params['in_stock'] = '1'
+        if search_query:
+            qs_params['q'] = search_query
+        context['filter_qs'] = urlencode(qs_params, doseq=True)
+
+        context['categories'] = services.get_root_categories()
         return context
+
+
+class CategoryRedirectView(View):
+    """Backward-compat redirect: /shop/category/<slug>/ → /shop/?category=<slug>."""
+
+    def get(self, request, slug):
+        from django.urls import reverse
+        target = reverse('store:shop') + f'?category={slug}'
+        return redirect(target, permanent=True)
 
 
 class CategoryView(ListView):
