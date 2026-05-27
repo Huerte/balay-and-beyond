@@ -13,8 +13,17 @@ if _render_url and _render_url not in ALLOWED_HOSTS:
 CSRF_TRUSTED_ORIGINS = [f'https://{host}' for host in ALLOWED_HOSTS if host]
 
 from whitenoise.storage import CompressedManifestStaticFilesStorage
+
 class CustomWhiteNoiseStorage(CompressedManifestStaticFilesStorage):
     manifest_strict = False
+
+    def post_process(self, *args, **kwargs):
+        for name, hashed_name, processed in super().post_process(*args, **kwargs):
+            if isinstance(processed, Exception):
+                # Skip missing source map errors from vendor files
+                yield name, None, True
+            else:
+                yield name, hashed_name, processed
 
 STORAGES["staticfiles"] = {
     "BACKEND": "config.settings.prod.CustomWhiteNoiseStorage",
