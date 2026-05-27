@@ -100,6 +100,11 @@ LOGIN_URL = 'accounts:login'
 LOGIN_REDIRECT_URL = 'store:home'
 LOGOUT_REDIRECT_URL = 'store:home'
 
+AUTHENTICATION_BACKENDS = [
+    'apps.accounts.backends.EmailBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
 # --- Jazzmin Settings (Premium UI/UX) ---
 JAZZMIN_SETTINGS = {
     "site_title": "Balay & Beyond Admin",
