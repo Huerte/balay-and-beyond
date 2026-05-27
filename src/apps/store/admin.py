@@ -41,10 +41,28 @@ class VariantInline(admin.TabularInline):
     extra = 1
 
 
+class StockFilter(admin.SimpleListFilter):
+    title = 'stock status'
+    parameter_name = 'stock_status'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('in_stock', 'In Stock'),
+            ('out_of_stock', 'Out of Stock (Zero)'),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == 'in_stock':
+            return queryset.filter(stock__gt=0)
+        if self.value() == 'out_of_stock':
+            return queryset.filter(stock=0)
+        return queryset
+
+
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = ('name', 'category', 'price', 'stock', 'is_published', 'sku', 'created_at')
-    list_filter = ('is_published', 'category', 'created_at')
+    list_filter = ('is_published', 'category', StockFilter, 'created_at')
     search_fields = ('name', 'description', 'sku')
     prepopulated_fields = {'slug': ('name',)}
     inlines = [ProductImageInline, VariantInline]
