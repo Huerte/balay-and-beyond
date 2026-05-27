@@ -15,6 +15,7 @@ CSRF_TRUSTED_ORIGINS = [f'https://{host}' for host in ALLOWED_HOSTS if host]
 STORAGES["staticfiles"] = {
     "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
 }
+WHITENOISE_MANIFEST_STRICT = False
 
 import dj_database_url
 if 'DATABASE_URL' in os.environ:
