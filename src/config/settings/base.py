@@ -25,6 +25,10 @@ INSTALLED_APPS = [
     'apps.store',
     'apps.orders',
     'apps.payments',
+
+    # Cloudinary for media storage
+    'cloudinary_storage',
+    'cloudinary',
 ]
 
 MIDDLEWARE = [
@@ -94,6 +98,10 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+if os.environ.get('CLOUDINARY_URL'):
+    # If CLOUDINARY_URL is set, use Cloudinary for media storage
+    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+    
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = 'accounts:login'

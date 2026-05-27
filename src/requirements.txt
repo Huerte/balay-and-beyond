@@ -6,3 +6,5 @@ psycopg2-binary
 python-dotenv
 django-jazzmin
 Pillow
+cloudinary
+django-cloudinary-storage

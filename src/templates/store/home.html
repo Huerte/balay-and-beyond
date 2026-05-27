@@ -107,9 +107,9 @@
         {% for category in categories %}
         <a href="{% url 'store:category' category.slug %}" class="group relative aspect-[4/5] overflow-hidden rounded-lg bg-muted/10 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-4">
             {% if category.image %}
-            <img src="{{ category.image.url }}" alt="{{ category.name }}" class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy">
+            <img src="{{ category.image.url }}" alt="{{ category.name }}" onerror="this.onerror=null; this.src='{% static \'assets/images/placeholder.jpg\' %}'" class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy">
             {% else %}
-            <img src="https://picsum.photos/id/{{ forloop.counter|add:20 }}/600/800" alt="{{ category.name }}" class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy">
+            <img src="{% static 'assets/images/placeholder.jpg' %}" alt="No image available" class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy">
             {% endif %}
             <div class="absolute inset-0 bg-gradient-to-t from-text/80 via-text/20 to-transparent flex flex-col justify-end p-8">
                 <h3 class="font-serif text-2xl text-surface">{{ category.name }}</h3>
