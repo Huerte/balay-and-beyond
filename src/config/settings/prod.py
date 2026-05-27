@@ -12,10 +12,13 @@ if _render_url and _render_url not in ALLOWED_HOSTS:
 
 CSRF_TRUSTED_ORIGINS = [f'https://{host}' for host in ALLOWED_HOSTS if host]
 
+from whitenoise.storage import CompressedManifestStaticFilesStorage
+class CustomWhiteNoiseStorage(CompressedManifestStaticFilesStorage):
+    manifest_strict = False
+
 STORAGES["staticfiles"] = {
-    "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    "BACKEND": "config.settings.prod.CustomWhiteNoiseStorage",
 }
-WHITENOISE_MANIFEST_STRICT = False
 
 import dj_database_url
 if 'DATABASE_URL' in os.environ:
