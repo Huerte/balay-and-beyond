@@ -155,20 +155,6 @@ class CategoryRedirectView(View):
         return redirect(target, permanent=True)
 
 
-class CategoryView(ListView):
-    template_name = 'store/category.html'
-    context_object_name = 'products'
-    paginate_by = 12
-
-    def get_queryset(self):
-        self.category = services.get_category_by_slug(self.kwargs['slug'])
-        return services.get_products_by_category(self.category)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['current_category'] = self.category
-        return context
-
 
 class ProductDetailView(DetailView):
     template_name = 'store/product_detail.html'
