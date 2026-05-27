@@ -12,7 +12,9 @@ if _render_url and _render_url not in ALLOWED_HOSTS:
 
 CSRF_TRUSTED_ORIGINS = [f'https://{host}' for host in ALLOWED_HOSTS if host]
 
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STORAGES["staticfiles"] = {
+    "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+}
 
 import dj_database_url
 if 'DATABASE_URL' in os.environ:
