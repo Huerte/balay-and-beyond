@@ -10,5 +10,5 @@ staticfiles/
 .DS_Store
 Thumbs.db
 skill.md
-db.sqlite3
+src/db.sqlite3
 src/media/
