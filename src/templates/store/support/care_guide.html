@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Care Guide - Balay & Beyond{% endblock %}
+
+{% block content %}
+
+<header class="bg-surface border-b border-muted/10">
+    <div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 pt-8 pb-4">
+        <nav class="flex text-xs uppercase tracking-widest font-medium" aria-label="Breadcrumb">
+            <ol class="flex items-center space-x-2">
+                <li><a href="{% url 'store:home' %}" class="text-muted hover:text-primary transition-colors focus:outline-none focus:ring-1 focus:ring-primary rounded px-1">Home</a></li>
+                <li class="text-muted/40">/</li>
+                <li class="text-text">Care Guide</li>
+            </ol>
+        </nav>
+    </div>
+    <div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-16">
+        <div class="max-w-3xl">
+            <h1 class="font-serif text-5xl md:text-6xl text-text leading-tight">Care Guide</h1>
+            <p class="mt-4 text-muted text-[15px] leading-relaxed max-w-2xl">
+                Our products are designed to last, but a little care goes a long way. Follow these guidelines to keep your Balay & Beyond pieces looking beautiful for years to come.
+            </p>
+        </div>
+    </div>
+</header>
+
+<div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-20">
+    <div class="max-w-3xl space-y-14">
+
+        <section aria-labelledby="care-wood">
+            <h2 id="care-wood" class="font-serif text-2xl text-text mb-4">Wooden Furniture & Accents</h2>
+            <ul class="space-y-3 text-muted text-[15px] leading-relaxed list-none pl-0">
+                <li class="flex gap-3 items-start"><i data-lucide="circle-dot" class="w-4 h-4 text-primary mt-1 flex-shrink-0"></i><span>Dust regularly with a soft, dry cloth.</span></li>
+                <li class="flex gap-3 items-start"><i data-lucide="circle-dot" class="w-4 h-4 text-primary mt-1 flex-shrink-0"></i><span>Avoid using harsh chemical cleaners or silicone-based polishes.</span></li>
+                <li class="flex gap-3 items-start"><i data-lucide="circle-dot" class="w-4 h-4 text-primary mt-1 flex-shrink-0"></i><span>Keep away from direct sunlight and extreme temperature changes to prevent warping or fading.</span></li>
+                <li class="flex gap-3 items-start"><i data-lucide="circle-dot" class="w-4 h-4 text-primary mt-1 flex-shrink-0"></i><span>Use coasters or felt pads to protect surfaces from heat and moisture.</span></li>
+            </ul>
+        </section>
+
+        <section aria-labelledby="care-textiles">
+            <h2 id="care-textiles" class="font-serif text-2xl text-text mb-4">Textiles & Linens</h2>
+            <ul class="space-y-3 text-muted text-[15px] leading-relaxed list-none pl-0">
+                <li class="flex gap-3 items-start"><i data-lucide="circle-dot" class="w-4 h-4 text-primary mt-1 flex-shrink-0"></i><span>Machine wash cold on a gentle cycle unless otherwise specified.</span></li>
+                <li class="flex gap-3 items-start"><i data-lucide="circle-dot" class="w-4 h-4 text-primary mt-1 flex-shrink-0"></i><span>Do not bleach. Tumble dry low or line dry in the shade.</span></li>
+                <li class="flex gap-3 items-start"><i data-lucide="circle-dot" class="w-4 h-4 text-primary mt-1 flex-shrink-0"></i><span>Iron on a low setting if necessary.</span></li>
+            </ul>
+        </section>
+
+        <section aria-labelledby="care-ceramics">
+            <h2 id="care-ceramics" class="font-serif text-2xl text-text mb-4">Ceramics & Glassware</h2>
+            <ul class="space-y-3 text-muted text-[15px] leading-relaxed list-none pl-0">
+                <li class="flex gap-3 items-start"><i data-lucide="circle-dot" class="w-4 h-4 text-primary mt-1 flex-shrink-0"></i><span>Hand washing is recommended for artisanal ceramics to preserve their glaze.</span></li>
+                <li class="flex gap-3 items-start"><i data-lucide="circle-dot" class="w-4 h-4 text-primary mt-1 flex-shrink-0"></i><span>Avoid sudden temperature changes to prevent cracking.</span></li>
+                <li class="flex gap-3 items-start"><i data-lucide="circle-dot" class="w-4 h-4 text-primary mt-1 flex-shrink-0"></i><span>Microwave and dishwasher safety depends on the specific item—please check the product details.</span></li>
+            </ul>
+        </section>
+        
+        <!-- Contact -->
+        <div class="border-t border-muted/20 pt-10">
+            <p class="text-muted text-[15px] leading-relaxed">
+                Need more specific care advice? <a href="{% url 'store:contact' %}" class="text-primary hover:underline underline-offset-4 font-medium">Contact our team</a> and we'll be happy to help.
+            </p>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

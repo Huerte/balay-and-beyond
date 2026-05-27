@@ -1,0 +1,306 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{% block meta_description %}Everything from your Home. and More. Curated household goods and essentials designed for modern living.{% endblock %}">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    
+    <title>{% block title %}Home{% endblock %} | Balay &amp; Beyond</title>
+
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary:   '#C8A97E',
+                        surface:   '#FAF7F2',
+                        text:      '#2C2C2C',
+                        muted:     '#7A7067',
+                        accent:    '#6B8C6A',
+                        danger:    '#B85C38',
+                    },
+                    fontFamily: {
+                        sans: ['"DM Sans"', 'sans-serif'],
+                        serif: ['"Playfair Display"', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-surface text-text font-sans antialiased min-h-screen flex flex-col">
+
+    
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0 focus:z-50 focus:p-4 focus:bg-surface focus:text-primary focus:font-bold">
+        Skip to main content
+    </a>
+
+    
+    <nav class="sticky top-0 z-40 bg-surface border-b border-muted/20 shadow-sm">
+        <div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
+            <div class="flex justify-between items-center min-h-[5rem] py-2">
+                
+                <div class="flex-shrink-0 flex items-center pr-6 lg:pr-10">
+                    <a href="{% url 'store:home' %}" class="font-serif text-2xl font-bold text-text hover:text-primary transition-colors duration-200">
+                        Balay &amp; Beyond
+                    </a>
+                </div>
+
+                
+                <div id="nav-links-container" class="hidden lg:flex flex-1 items-center justify-center">
+                    <div class="flex items-center gap-12 h-full">
+                        
+                        <div class="group h-full flex items-center" id="mega-menu-trigger">
+                            <a href="{% url 'store:shop' %}" class="inline-flex items-center text-[15px] font-medium text-text hover:text-primary transition-colors duration-200 py-6">
+                                Shop
+                            </a>
+                            
+                            <div id="mega-menu-panel" class="absolute left-0 right-0 top-full bg-surface border-t border-muted/20 shadow-xl opacity-0 invisible transition-all duration-300 ease-out transform -translate-y-2 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 z-50">
+                                <div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-12">
+                                    <div class="grid grid-cols-4 gap-12">
+                                        
+                                        <div>
+                                            <h3 class="text-sm font-bold tracking-widest text-text uppercase font-serif mb-6">Rooms</h3>
+                                            <ul class="space-y-4">
+                                                <li><a href="{% url 'store:category' 'kitchen' %}" class="text-[15px] text-muted hover:text-primary transition-colors">Kitchen</a></li>
+                                                <li><a href="{% url 'store:category' 'living-room' %}" class="text-[15px] text-muted hover:text-primary transition-colors">Living Room</a></li>
+                                                <li><a href="{% url 'store:category' 'bedroom' %}" class="text-[15px] text-muted hover:text-primary transition-colors">Bedroom</a></li>
+                                                <li><a href="{% url 'store:category' 'bathroom' %}" class="text-[15px] text-muted hover:text-primary transition-colors">Bathroom</a></li>
+                                            </ul>
+                                        </div>
+                                        
+                                        
+                                        <div>
+                                            <h3 class="text-sm font-bold tracking-widest text-text uppercase font-serif mb-6">Utility</h3>
+                                            <ul class="space-y-4">
+                                                <li><a href="{% url 'store:category' 'cleaning-laundry' %}" class="text-[15px] text-muted hover:text-primary transition-colors">Cleaning & Laundry</a></li>
+                                                <li><a href="{% url 'store:category' 'outdoor-garden' %}" class="text-[15px] text-muted hover:text-primary transition-colors">Outdoor & Garden</a></li>
+                                                <li class="pt-2"><a href="{% url 'store:shop' %}" class="text-[15px] font-medium text-primary hover:text-text transition-colors flex items-center">Shop All <i data-lucide="arrow-right" class="w-4 h-4 ml-1"></i></a></li>
+                                            </ul>
+                                        </div>
+                                        
+                                        
+                                        <div class="col-span-2 relative rounded-lg overflow-hidden aspect-[21/9] group/img">
+                                            <img src="{% static 'assets/images/hero.jpg' %}" alt="Featured Collection" class="w-full h-full object-cover transition-transform duration-700 group-hover/img:scale-105" loading="lazy">
+                                            <div class="absolute inset-0 bg-gradient-to-t from-text/60 to-transparent flex items-end p-6">
+                                                <a href="#" class="text-surface font-medium hover:underline decoration-surface underline-offset-4">Discover Summer Living</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <a href="{% url 'store:about' %}" class="text-[15px] font-medium text-text hover:text-primary transition-colors duration-200 py-6">About</a>
+                        <a href="{% url 'store:contact' %}" class="text-[15px] font-medium text-text hover:text-primary transition-colors duration-200 py-6">Contact</a>
+                    </div>
+                </div>
+
+                
+                <div class="flex items-center gap-4 xl:gap-6 ml-auto pl-6 lg:pl-10">
+                    
+                    <div class="hidden sm:flex relative items-center h-full">
+                        <button id="search-toggle-btn" class="p-1 text-text hover:text-primary transition-colors duration-200 z-10 bg-surface" aria-label="Toggle Search">
+                            <i data-lucide="search" class="w-6 h-6"></i>
+                        </button>
+                        <div id="search-input-wrapper" class="absolute right-0 top-1/2 -translate-y-1/2 overflow-hidden transition-all duration-300 ease-in-out w-0 opacity-0 pointer-events-none z-20">
+                            <div class="relative w-64 shadow-lg rounded">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i data-lucide="search" class="w-4 h-4 text-muted"></i>
+                                </div>
+                                <input type="text" name="search" id="collapsible-search-input" class="block w-full pl-9 pr-8 py-2 border border-muted/30 rounded bg-white text-text placeholder-muted focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary sm:text-sm" placeholder="Search...">
+                                <button id="search-close-btn" class="absolute inset-y-0 right-0 pr-3 flex items-center text-muted hover:text-text cursor-pointer">
+                                    <i data-lucide="x" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'store:wishlist' %}" class="text-text hover:text-primary relative transition-colors duration-200 flex items-center" aria-label="Wishlist">
+                        <i data-lucide="heart" class="w-6 h-6"></i>
+                        <span id="wishlist-count-badge" class="absolute -top-1 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-surface {% if not wishlist_count or wishlist_count == 0 %}hidden{% endif %}">{{ wishlist_count|default:0 }}</span>
+                    </a>
+                    {% endif %}
+
+                    
+                    <a href="{% url 'orders:cart' %}" class="text-text hover:text-primary relative transition-colors duration-200 flex items-center" aria-label="Shopping Cart">
+                        <i data-lucide="shopping-bag" class="w-6 h-6"></i>
+                        <span id="cart-count-badge" class="absolute -top-1 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-surface {% if not cart_count or cart_count == 0 %}hidden{% endif %}">
+                            {{ cart_count|default:0 }}
+                        </span>
+                    </a>
+
+                    
+                    <div class="relative flex items-center">
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'accounts:dashboard' %}" class="text-text hover:text-primary transition-colors duration-200 flex items-center" aria-label="Account Dashboard">
+                                <i data-lucide="user" class="w-6 h-6"></i>
+                            </a>
+                        {% else %}
+                            <a href="{% url 'accounts:login' %}" class="text-text hover:text-primary transition-colors duration-200 flex items-center" aria-label="Sign In">
+                                <i data-lucide="user" class="w-6 h-6"></i>
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    
+    <main id="main-content" class="flex-grow">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    
+    <footer class="bg-surface border-t border-muted/20 mt-16 pt-16 pb-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 md:gap-8">
+                <div class="md:col-span-1">
+                    <a href="{% url 'store:home' %}" class="font-serif text-2xl font-bold text-text">
+                        Balay &amp; Beyond
+                    </a>
+                    <p class="mt-4 text-muted text-sm leading-relaxed">
+                        Everything from your Home. and More. Curated essentials for warm, approachable, and lived-in spaces.
+                    </p>
+                    <div class="mt-6 flex space-x-4">
+                        <a href="#" class="text-muted hover:text-primary transition-colors duration-200">
+                            <span class="sr-only">Instagram</span>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line></svg>
+                        </a>
+                        <a href="#" class="text-muted hover:text-primary transition-colors duration-200">
+                            <span class="sr-only">Facebook</span>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+                        </a>
+                        <a href="https://tinyurl.com/msjer82z" class="text-muted hover:text-primary transition-colors duration-200">
+                            <span class="sr-only">YouTube</span>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                                <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-1.96C18.88 4 12 4 12 4s-6.88 0-8.6.46A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58 2.78 2.78 0 0 0 1.94 1.96C5.12 20 12 20 12 20s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"></path>
+                                <polygon points="10 15 15 12 10 9"></polygon>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-sm font-bold tracking-wider text-text uppercase font-serif">Shop</h3>
+                    <ul class="mt-4 space-y-3">
+                        <li><a href="#" title="Coming soon" class="text-muted hover:text-primary text-sm transition-colors duration-200">New Arrivals</a></li>
+                        {% for category in categories|slice:":3" %}
+                        <li><a href="{% url 'store:category' category.slug %}" class="text-muted hover:text-primary text-sm transition-colors duration-200">{{ category.name }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="text-sm font-bold tracking-wider text-text uppercase font-serif">Account</h3>
+                    <ul class="mt-4 space-y-3">
+                        {% if user.is_authenticated %}
+                        <li><a href="{% url 'accounts:dashboard' %}" class="text-muted hover:text-primary text-sm transition-colors duration-200">My Dashboard</a></li>
+                        <li><a href="{% url 'orders:history' %}" class="text-muted hover:text-primary text-sm transition-colors duration-200">Order History</a></li>
+                        <li><a href="{% url 'store:wishlist' %}" class="text-muted hover:text-primary text-sm transition-colors duration-200">Wishlist</a></li>
+                        {% else %}
+                        <li><a href="{% url 'accounts:login' %}" class="text-muted hover:text-primary text-sm transition-colors duration-200">Login</a></li>
+                        <li><a href="{% url 'accounts:register' %}" class="text-muted hover:text-primary text-sm transition-colors duration-200">Register</a></li>
+                        {% endif %}
+                        <li><a href="{% url 'orders:cart' %}" class="text-muted hover:text-primary text-sm transition-colors duration-200">Shopping Cart</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="text-sm font-bold tracking-wider text-text uppercase font-serif">Support</h3>
+                    <ul class="mt-4 space-y-3">
+                        <li><a href="{% url 'store:contact' %}" class="text-muted hover:text-primary text-sm transition-colors duration-200">Contact Us</a></li>
+                        <li><a href="{% url 'store:shipping' %}" class="text-muted hover:text-primary text-sm transition-colors duration-200">Shipping &amp; Returns</a></li>
+                        <li><a href="{% url 'store:faq' %}" class="text-muted hover:text-primary text-sm transition-colors duration-200">FAQ</a></li>
+                        <li><a href="{% url 'store:care_guide' %}" class="text-muted hover:text-primary text-sm transition-colors duration-200">Care Guide</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="mt-16 pt-8 border-t border-muted/20 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-muted text-sm text-center md:text-left">
+                    &copy; {% now "Y" %} Balay &amp; Beyond. All rights reserved.
+                </p>
+                <div class="mt-4 md:mt-0 flex space-x-6">
+                    <a href="{% url 'store:privacy' %}" class="text-muted hover:text-text text-sm transition-colors duration-200">Privacy Policy</a>
+                    <a href="{% url 'store:terms' %}" class="text-muted hover:text-text text-sm transition-colors duration-200">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    
+    <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col space-y-2 pointer-events-none">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="toast-message pointer-events-auto flex items-center p-4 mb-2 text-surface rounded shadow-md transition-opacity duration-300
+                    {% if message.tags == 'error' %}bg-danger
+                    {% elif message.tags == 'success' %}bg-accent
+                    {% elif message.tags == 'warning' %}bg-primary
+                    {% else %}bg-muted{% endif %}" role="alert">
+                    
+                    <div class="mr-3">
+                        {% if message.tags == 'error' %}
+                            <i data-lucide="alert-circle" class="w-5 h-5"></i>
+                        {% elif message.tags == 'success' %}
+                            <i data-lucide="check-circle" class="w-5 h-5"></i>
+                        {% else %}
+                            <i data-lucide="info" class="w-5 h-5"></i>
+                        {% endif %}
+                    </div>
+                    <div class="text-sm font-medium">{{ message }}</div>
+                    <button type="button" class="ml-4 flex-shrink-0 text-surface/80 hover:text-surface focus:outline-none" onclick="this.parentElement.remove();">
+                        <span class="sr-only">Close</span>
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // Auto-dismiss toasts after 3 seconds
+        document.addEventListener("DOMContentLoaded", function() {
+            const toasts = document.querySelectorAll('.toast-message');
+            toasts.forEach(toast => {
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    setTimeout(() => {
+                        toast.remove();
+                    }, 300); // Wait for transition
+                }, 3000);
+            });
+        });
+    </script>
+    
+    <script src="{% static 'js/api.js' %}"></script>
+    <script src="{% static 'js/cart.js' %}"></script>
+    <script src="{% static 'js/search.js' %}"></script>
+    <script src="{% static 'js/navbar.js' %}"></script>
+    <script src="{% static 'js/wishlist.js' %}"></script>
+    {% block extra_scripts %}{% endblock %}
+
+</body>
+</html>

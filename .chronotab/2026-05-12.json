@@ -1,0 +1,49 @@
+{
+  "project": "FrankProject",
+  "date": "2026-05-12",
+  "totalSeconds": 694,
+  "branches": {
+    "_default": {
+      "ikea_store.json": {
+        "seconds": 10,
+        "lastActive": "2026-05-12T01:08:18.383Z"
+      },
+      "ikea_search_products.json": {
+        "seconds": 29,
+        "lastActive": "2026-05-12T01:54:09.334Z"
+      },
+      "0001_initial.py": {
+        "seconds": 1,
+        "lastActive": "2026-05-12T01:56:19.892Z"
+      },
+      "category.html": {
+        "seconds": 4,
+        "lastActive": "2026-05-12T01:58:58.226Z"
+      },
+      "seed_demo.py": {
+        "seconds": 75,
+        "lastActive": "2026-05-12T02:43:21.892Z"
+      },
+      ".env": {
+        "seconds": 10,
+        "lastActive": "2026-05-12T03:57:18.669Z"
+      },
+      ".env.example": {
+        "seconds": 7,
+        "lastActive": "2026-05-12T02:43:36.433Z"
+      },
+      "CONTEXT_HANDOFF.txt": {
+        "seconds": 9,
+        "lastActive": "2026-05-12T02:50:09.016Z"
+      },
+      "seed_init.py": {
+        "seconds": 57,
+        "lastActive": "2026-05-12T03:57:10.606Z"
+      },
+      "home.html": {
+        "seconds": 492,
+        "lastActive": "2026-05-12T04:40:20.496Z"
+      }
+    }
+  }
+}

@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Elevated Living for Every Sanctuary{% endblock %}
+
+{% block content %}
+
+<!-- ======================================================
+     HERO — split layout: prose left / slideshow right
+     Drop images into  static/assets/images/hero/
+     and they load automatically (alphabetical order).
+     ====================================================== -->
+<section class="relative bg-surface overflow-hidden">
+    <div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-20 md:py-28 flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
+
+        <!-- LEFT: text -->
+        <div class="flex-1 space-y-8 z-10">
+            <p class="text-primary font-medium tracking-widest text-sm uppercase">Premium Home Goods</p>
+            <h1 class="font-serif text-5xl md:text-6xl text-text leading-tight">
+                Everything from your <span class="text-primary italic">Home.</span> and More.
+            </h1>
+            <p class="text-muted text-lg md:text-xl max-w-xl leading-relaxed">
+                Curated household essentials that blend functional design with modern aesthetics. Quality goods for every corner of your life.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 pt-2">
+                <a href="{% url 'store:shop' %}"
+                   class="inline-flex items-center justify-center px-8 py-4 bg-primary text-surface font-medium rounded hover:bg-text transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                    Shop the Collection
+                </a>
+                <a href="#categories"
+                   class="inline-flex items-center justify-center px-8 py-4 border border-muted/30 text-text font-medium rounded hover:border-primary hover:text-primary transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                    Browse Categories
+                </a>
+            </div>
+        </div>
+
+        <!-- RIGHT: slideshow panel -->
+        <div class="w-full lg:w-[480px] xl:w-[540px] flex-shrink-0">
+            <!-- Decorative tilt frame -->
+            <div class="relative">
+                <div class="absolute inset-0 bg-primary/10 rounded-2xl -rotate-2 transition-transform duration-500 hover:rotate-0"></div>
+
+                <!-- Slideshow container -->
+                <div id="hero-slideshow"
+                     class="relative aspect-[4/5] w-full rounded-2xl overflow-hidden shadow-2xl bg-muted/10"
+                     aria-label="Hero slideshow">
+
+                    <!-- Slides -->
+                    {% for img in hero_images %}
+                    <div class="hero-slide absolute inset-0 transition-opacity duration-1000 ease-in-out {% if forloop.first %}opacity-100 z-10{% else %}opacity-0 z-0{% endif %}"
+                         data-index="{{ forloop.counter0 }}">
+                        <img src="{{ img }}"
+                             alt="Balay and Beyond lifestyle {{ forloop.counter }}"
+                             class="w-full h-full object-cover"
+                             loading="{% if forloop.first %}eager{% else %}lazy{% endif %}">
+                    </div>
+                    {% empty %}
+                    <div class="absolute inset-0 bg-muted/10 flex items-center justify-center">
+                        <p class="text-muted text-sm">Add images to static/assets/images/hero/</p>
+                    </div>
+                    {% endfor %}
+
+                    <!-- Prev / Next -->
+                    {% if hero_images|length > 1 %}
+                    <button id="hero-prev"
+                            class="absolute left-3 top-1/2 -translate-y-1/2 z-30 w-10 h-10 flex items-center justify-center rounded-full bg-surface/80 text-text hover:bg-surface transition-colors focus:outline-none focus:ring-2 focus:ring-primary shadow-md"
+                            aria-label="Previous slide">
+                        <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                    </button>
+                    <button id="hero-next"
+                            class="absolute right-3 top-1/2 -translate-y-1/2 z-30 w-10 h-10 flex items-center justify-center rounded-full bg-surface/80 text-text hover:bg-surface transition-colors focus:outline-none focus:ring-2 focus:ring-primary shadow-md"
+                            aria-label="Next slide">
+                        <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                    </button>
+
+                    <!-- Dot indicators -->
+                    <div id="hero-dots"
+                         class="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2"
+                         role="tablist"
+                         aria-label="Slideshow navigation">
+                        {% for img in hero_images %}
+                        <button role="tab"
+                                aria-label="Slide {{ forloop.counter }}"
+                                class="hero-dot h-1.5 rounded-full transition-all duration-300 {% if forloop.first %}bg-surface w-5{% else %}bg-surface/50 w-1.5{% endif %}"
+                                data-index="{{ forloop.counter0 }}">
+                        </button>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+
+<section id="categories" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+    <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
+        <div>
+            <h2 class="font-serif text-4xl text-text">Explore Our Categories</h2>
+            <p class="text-muted mt-2">Find the perfect pieces for every corner of your home.</p>
+        </div>
+    </div>
+    
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        {% for category in categories %}
+        <a href="{% url 'store:category' category.slug %}" class="group relative aspect-[4/5] overflow-hidden rounded-lg bg-muted/10 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-4">
+            {% if category.image %}
+            <img src="{{ category.image.url }}" alt="{{ category.name }}" class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy">
+            {% else %}
+            <img src="https://picsum.photos/id/{{ forloop.counter|add:20 }}/600/800" alt="{{ category.name }}" class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy">
+            {% endif %}
+            <div class="absolute inset-0 bg-gradient-to-t from-text/80 via-text/20 to-transparent flex flex-col justify-end p-8">
+                <h3 class="font-serif text-2xl text-surface">{{ category.name }}</h3>
+                <p class="text-surface/80 text-sm mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform translate-y-2 group-hover:translate-y-0">
+                    Explore Collection <i data-lucide="arrow-right" class="inline-block w-4 h-4 ml-1"></i>
+                </p>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
+        <div class="flex flex-col items-center">
+            <div class="w-16 h-16 bg-accent/10 flex items-center justify-center rounded-full text-accent mb-6">
+                <i data-lucide="feather" class="w-8 h-8"></i>
+            </div>
+            <h3 class="font-serif text-xl text-text mb-3">Sustainably Sourced</h3>
+            <p class="text-muted text-sm leading-relaxed max-w-xs">
+                We partner with artisans who prioritize ethical materials and craftsmanship.
+            </p>
+        </div>
+        <div class="flex flex-col items-center">
+            <div class="w-16 h-16 bg-primary/10 flex items-center justify-center rounded-full text-primary mb-6">
+                <i data-lucide="clock" class="w-8 h-8"></i>
+            </div>
+            <h3 class="font-serif text-xl text-text mb-3">Built to Last</h3>
+            <p class="text-muted text-sm leading-relaxed max-w-xs">
+                Our goods are designed with durability in mind, destined to become heirlooms.
+            </p>
+        </div>
+        <div class="flex flex-col items-center">
+            <div class="w-16 h-16 bg-accent/10 flex items-center justify-center rounded-full text-accent mb-6">
+                <i data-lucide="heart" class="w-8 h-8"></i>
+            </div>
+            <h3 class="font-serif text-xl text-text mb-3">Honest Design</h3>
+            <p class="text-muted text-sm leading-relaxed max-w-xs">
+                Simplicity that speaks for itself, without unnecessary embellishments.
+            </p>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+/* -------------------------------------------------------
+   Hero Slideshow Controller
+   Auto-advances every 5 000 ms. Pauses on hover.
+   Respects prefers-reduced-motion by skipping Ken Burns.
+------------------------------------------------------- */
+(function () {
+    const INTERVAL_MS = 5000;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const slides = Array.from(document.querySelectorAll('.hero-slide'));
+    const dots   = Array.from(document.querySelectorAll('.hero-dot'));
+    if (slides.length <= 1) return; // single image — no controls needed
+
+    let current = 0;
+    let timer   = null;
+
+    function goTo(index) {
+        const prev = current;
+        current = (index + slides.length) % slides.length;
+
+        // Swap slides
+        slides[prev].classList.replace('opacity-100', 'opacity-0');
+        slides[prev].classList.replace('z-10', 'z-0');
+        slides[current].classList.replace('opacity-0', 'opacity-100');
+        slides[current].classList.replace('z-0', 'z-10');
+
+        // Ken Burns on active image
+        if (!reducedMotion) {
+            const prevImg = slides[prev].querySelector('img');
+            const curImg  = slides[current].querySelector('img');
+            if (prevImg) prevImg.style.transform = '';
+            if (curImg)  { curImg.style.transition = 'transform 6000ms ease-out'; curImg.style.transform = 'scale(1.08)'; }
+        }
+
+        // Update dots — pill style: active=bg-surface w-5, inactive=bg-surface/50 w-1.5
+        dots.forEach((d, i) => {
+            if (i === current) {
+                d.classList.add('bg-surface', 'w-5');
+                d.classList.remove('bg-surface/50', 'w-1.5');
+            } else {
+                d.classList.remove('bg-surface', 'w-5');
+                d.classList.add('bg-surface/50', 'w-1.5');
+            }
+        });
+    }
+
+    function startTimer() { timer = setInterval(() => goTo(current + 1), INTERVAL_MS); }
+    function stopTimer()  { clearInterval(timer); }
+
+    // Wire controls
+    document.getElementById('hero-prev')?.addEventListener('click', () => { stopTimer(); goTo(current - 1); startTimer(); });
+    document.getElementById('hero-next')?.addEventListener('click', () => { stopTimer(); goTo(current + 1); startTimer(); });
+    dots.forEach(d => d.addEventListener('click', () => { stopTimer(); goTo(parseInt(d.dataset.index)); startTimer(); }));
+
+    // Pause on hover over the slideshow container
+    const slideshowEl = document.getElementById('hero-slideshow');
+    slideshowEl?.addEventListener('mouseenter', stopTimer);
+    slideshowEl?.addEventListener('mouseleave', startTimer);
+
+    // Kick off Ken Burns on first slide
+    if (!reducedMotion) {
+        const firstImg = slides[0]?.querySelector('img');
+        if (firstImg) { firstImg.style.transition = 'transform 6000ms ease-out'; firstImg.style.transform = 'scale(1.08)'; }
+    }
+
+    startTimer();
+})();
+
+/* -------------------------------------------------------
+   Scroll-reveal for content sections below the hero
+------------------------------------------------------- */
+document.addEventListener('DOMContentLoaded', function () {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('opacity-100', 'translate-y-0');
+                entry.target.classList.remove('opacity-0', 'translate-y-10');
+            }
+        });
+    }, { threshold: 0.1 });
+
+    // Skip the hero section (first section on the page)
+    const sections = Array.from(document.querySelectorAll('section'));
+    sections.slice(1).forEach(section => {
+        section.classList.add('transition-all', 'duration-1000', 'opacity-0', 'translate-y-10');
+        observer.observe(section);
+    });
+});
+</script>
+{% endblock %}
+

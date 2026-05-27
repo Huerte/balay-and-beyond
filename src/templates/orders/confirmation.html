@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block title %}Order Confirmed #{{ order.id }}{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* CSS Only Checkmark Animation */
+    .checkmark-wrapper {
+        width: 80px;
+        height: 80px;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .checkmark-circle {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border: 4px solid #6B8C6A; /* accent color */
+        border-radius: 50%;
+        animation: scale-up 0.5s ease-out forwards;
+    }
+    .checkmark-stem {
+        width: 4px;
+        height: 25px;
+        background-color: #6B8C6A;
+        position: absolute;
+        left: 42px;
+        top: 24px;
+        transform: rotate(45deg);
+        transform-origin: bottom;
+        animation: draw-stem 0.2s 0.5s ease-out forwards;
+        opacity: 0;
+    }
+    .checkmark-kick {
+        width: 15px;
+        height: 4px;
+        background-color: #6B8C6A;
+        position: absolute;
+        left: 28px;
+        top: 45px;
+        transform: rotate(45deg);
+        transform-origin: right;
+        animation: draw-kick 0.2s 0.7s ease-out forwards;
+        opacity: 0;
+    }
+
+    @keyframes scale-up {
+        0% { transform: scale(0); opacity: 0; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+    @keyframes draw-stem {
+        0% { height: 0; opacity: 1; }
+        100% { height: 25px; opacity: 1; }
+    }
+    @keyframes draw-kick {
+        0% { width: 0; opacity: 1; }
+        100% { width: 15px; opacity: 1; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+    
+    <div class="flex justify-center mb-8">
+        <div class="checkmark-wrapper">
+            <div class="checkmark-circle"></div>
+            <div class="checkmark-stem"></div>
+            <div class="checkmark-kick"></div>
+        </div>
+    </div>
+
+    <h1 class="font-serif text-4xl text-text mb-4">Thank you for your order</h1>
+    <p class="text-muted text-lg mb-12">
+        Your order <span class="text-text font-bold">#{{ order.id }}</span> has been placed successfully. 
+        A confirmation email has been sent to <span class="text-text font-medium">{{ order.user.email }}</span>.
+    </p>
+
+    <div class="bg-surface border border-muted/20 rounded-xl overflow-hidden shadow-sm text-left">
+        
+        <div class="bg-muted/5 p-6 border-b border-muted/10 flex flex-col sm:flex-row justify-between gap-4">
+            <div>
+                <p class="text-[10px] font-bold uppercase tracking-widest text-muted">Order Date</p>
+                <p class="text-sm font-medium text-text">{{ order.created_at|date:"F d, Y" }}</p>
+            </div>
+            <div>
+                <p class="text-[10px] font-bold uppercase tracking-widest text-muted">Estimated Delivery</p>
+                <p class="text-sm font-bold text-accent">3-5 Business Days</p>
+            </div>
+            <div>
+                <p class="text-[10px] font-bold uppercase tracking-widest text-muted">Shipping Method</p>
+                <p class="text-sm font-medium text-text">{{ order.shipping_method }}</p>
+            </div>
+        </div>
+
+        <div class="p-8 space-y-10">
+            
+            <div>
+                <h2 class="font-serif text-xl text-text mb-6">Order Details</h2>
+                <div class="space-y-6">
+                    {% for item in order.line_items.all %}
+                    <div class="flex gap-6 items-center">
+                        <div class="w-16 h-20 bg-muted/5 rounded flex-shrink-0">
+                            {% if item.product.images.all %}
+                            <img src="{{ item.product.images.all.0.url }}" class="w-full h-full object-cover rounded" loading="lazy">
+                            {% endif %}
+                        </div>
+                        <div class="flex-grow">
+                            <h3 class="text-sm font-bold text-text">{{ item.product.name }}</h3>
+                            <p class="text-xs text-muted">
+                                {{ item.quantity }}x 
+                                {% if item.variant %}({{ item.variant.value }}){% endif %}
+                            </p>
+                        </div>
+                        <p class="text-sm font-medium text-text">₱{{ item.unit_price|floatformat:2 }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 pt-10 border-t border-muted/10">
+                <div>
+                    <h2 class="text-xs font-bold uppercase tracking-widest text-text mb-4">Shipping Address</h2>
+                    <div class="text-sm text-muted space-y-1 leading-relaxed">
+                        <p class="text-text font-medium">{{ order.shipping_address.full_name }}</p>
+                        <p>{{ order.shipping_address.street }}</p>
+                        <p>{{ order.shipping_address.city }}, {{ order.shipping_address.province }}</p>
+                        <p>{{ order.shipping_address.zip_code }}</p>
+                        <p>{{ order.shipping_address.country }}</p>
+                    </div>
+                </div>
+                
+                <div class="space-y-3">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-muted">Subtotal</span>
+                        <span class="text-text font-medium">₱{{ order_subtotal|floatformat:2 }}</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-muted">Shipping</span>
+                        <span class="text-text font-medium">₱{{ order.shipping_cost|floatformat:2 }}</span>
+                    </div>
+                    <div class="pt-4 border-t border-muted/10 flex justify-between items-baseline">
+                        <span class="text-lg font-serif text-text">Total</span>
+                        <span class="text-2xl font-serif text-text">₱{{ order.total|floatformat:2 }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-16 space-y-6">
+        <p class="text-muted text-sm italic">Questions about your order? Contact us at {{ support_email }}</p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="{% url 'store:shop' %}" class="px-12 py-4 bg-primary text-surface font-bold uppercase tracking-widest rounded hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                Continue Shopping
+            </a>
+            <a href="{% url 'accounts:dashboard' %}" class="px-12 py-4 border border-muted/30 text-text font-bold uppercase tracking-widest rounded hover:border-primary hover:text-primary transition-all focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                View My Account
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

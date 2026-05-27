@@ -1,0 +1,248 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="flex flex-col lg:flex-row gap-12 relative">
+        
+        
+        <div class="flex-grow space-y-12">
+            
+            
+            <div class="flex items-center justify-between max-w-md mx-auto lg:mx-0">
+                <div class="flex flex-col items-center gap-2 group" id="indicator-1">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center border-2 border-primary bg-primary text-surface font-bold transition-colors">1</div>
+                    <span class="text-[10px] uppercase tracking-widest font-bold text-text">Shipping</span>
+                </div>
+                <div class="flex-grow h-[2px] bg-muted/20 mx-4 -mt-6"></div>
+                <div class="flex flex-col items-center gap-2 group" id="indicator-2">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center border-2 border-muted/20 bg-surface text-muted font-bold transition-colors">2</div>
+                    <span class="text-[10px] uppercase tracking-widest font-bold text-muted">Delivery</span>
+                </div>
+                <div class="flex-grow h-[2px] bg-muted/20 mx-4 -mt-6"></div>
+                <div class="flex flex-col items-center gap-2 group" id="indicator-3">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center border-2 border-muted/20 bg-surface text-muted font-bold transition-colors">3</div>
+                    <span class="text-[10px] uppercase tracking-widest font-bold text-muted">Payment</span>
+                </div>
+            </div>
+
+            
+            <section id="step-1" class="space-y-8 animate-fade-in">
+                <h2 class="font-serif text-3xl text-text">Shipping Information</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="md:col-span-2">
+                        <label for="email" class="block text-xs font-bold uppercase tracking-widest text-muted mb-2">Email Address</label>
+                        <input type="email" id="email" value="{{ user.email }}" class="w-full bg-surface border border-muted/30 rounded px-4 py-3 text-text focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary" placeholder="email@example.com" required>
+                    </div>
+                    
+                    <div class="md:col-span-2">
+                        <label for="full_name" class="block text-xs font-bold uppercase tracking-widest text-muted mb-2">Full Name</label>
+                        <input type="text" id="full_name" class="w-full bg-surface border border-muted/30 rounded px-4 py-3 text-text focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary" placeholder="Jane Doe" required>
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label for="street" class="block text-xs font-bold uppercase tracking-widest text-muted mb-2">Street Address</label>
+                        <input type="text" id="street" class="w-full bg-surface border border-muted/30 rounded px-4 py-3 text-text focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary" placeholder="123 Juan St." required>
+                    </div>
+
+                    <div>
+                        <label for="city" class="block text-xs font-bold uppercase tracking-widest text-muted mb-2">City</label>
+                        <input type="text" id="city" class="w-full bg-surface border border-muted/30 rounded px-4 py-3 text-text focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary" placeholder="City" required>
+                    </div>
+
+                    <div>
+                        <label for="province" class="block text-xs font-bold uppercase tracking-widest text-muted mb-2">Province</label>
+                        <input type="text" id="province" class="w-full bg-surface border border-muted/30 rounded px-4 py-3 text-text focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary" placeholder="Province" required>
+                    </div>
+
+                    <div>
+                        <label for="zip_code" class="block text-xs font-bold uppercase tracking-widest text-muted mb-2">ZIP Code</label>
+                        <input type="text" id="zip_code" class="w-full bg-surface border border-muted/30 rounded px-4 py-3 text-text focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary" placeholder="0000" required>
+                    </div>
+
+                    <div>
+                        <label for="country" class="block text-xs font-bold uppercase tracking-widest text-muted mb-2">Country</label>
+                        <select id="country" class="w-full bg-surface border border-muted/30 rounded px-4 py-3 text-text focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+                            <option value="Philippines" selected>Philippines</option>
+                            <option value="Singapore">Singapore</option>
+                            <option value="United States">United States</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="pt-8">
+                    <button onclick="CheckoutController.step(2)" class="px-12 py-4 bg-primary text-surface font-bold uppercase tracking-widest rounded hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                        Continue to Delivery
+                    </button>
+                </div>
+            </section>
+
+            
+            <section id="step-2" class="hidden space-y-8 animate-fade-in">
+                <h2 class="font-serif text-3xl text-text">Delivery Method</h2>
+                
+                <div class="space-y-4">
+                    <label class="flex items-center justify-between p-6 border border-muted/30 rounded cursor-pointer hover:border-primary transition-colors focus-within:ring-1 focus-within:ring-primary">
+                        <div class="flex items-center gap-4">
+                            <input type="radio" name="delivery_method" value="standard" data-cost="0" checked onchange="CheckoutController.shipping(0, 'Standard (3-5 Days)')" class="w-4 h-4 text-primary focus:ring-primary border-muted/30">
+                            <div>
+                                <p class="text-sm font-bold text-text">Standard Delivery</p>
+                                <p class="text-xs text-muted">3-5 Business Days</p>
+                            </div>
+                        </div>
+                        <p class="text-xs font-bold uppercase tracking-widest text-accent">Free</p>
+                    </label>
+
+                    <label class="flex items-center justify-between p-6 border border-muted/30 rounded cursor-pointer hover:border-primary transition-colors focus-within:ring-1 focus-within:ring-primary">
+                        <div class="flex items-center gap-4">
+                            <input type="radio" name="delivery_method" value="express" data-cost="150" onchange="CheckoutController.shipping(150, 'Express (1-2 Days)')" class="w-4 h-4 text-primary focus:ring-primary border-muted/30">
+                            <div>
+                                <p class="text-sm font-bold text-text">Express Delivery</p>
+                                <p class="text-xs text-muted">1-2 Business Days</p>
+                            </div>
+                        </div>
+                        <p class="text-sm font-medium text-text">₱150.00</p>
+                    </label>
+
+                    <label class="flex items-center justify-between p-6 border border-muted/30 rounded cursor-pointer hover:border-primary transition-colors focus-within:ring-1 focus-within:ring-primary">
+                        <div class="flex items-center gap-4">
+                            <input type="radio" name="delivery_method" value="sameday" data-cost="300" onchange="CheckoutController.shipping(300, 'Same Day (Metro Only)')" class="w-4 h-4 text-primary focus:ring-primary border-muted/30">
+                            <div>
+                                <p class="text-sm font-bold text-text">Same Day Delivery</p>
+                                <p class="text-xs text-muted">Metro Only</p>
+                            </div>
+                        </div>
+                        <p class="text-sm font-medium text-text">₱300.00</p>
+                    </label>
+                </div>
+
+                <div class="flex gap-4 pt-8">
+                    <button onclick="CheckoutController.step(1)" class="px-8 py-4 border border-muted/30 text-muted font-bold uppercase tracking-widest rounded hover:text-text transition-colors focus:outline-none focus:ring-1 focus:ring-muted">
+                        Back
+                    </button>
+                    <button onclick="CheckoutController.step(3)" class="flex-grow py-4 bg-primary text-surface font-bold uppercase tracking-widest rounded hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                        Continue to Payment
+                    </button>
+                </div>
+            </section>
+
+            
+            <section id="step-3" class="hidden space-y-8 animate-fade-in">
+                <h2 class="font-serif text-3xl text-text">Payment Information</h2>
+                
+                <div class="bg-surface border border-muted/20 rounded p-8 space-y-6">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-bold uppercase tracking-widest text-text">Credit / Debit Card</h3>
+                        <div class="flex gap-2">
+                            <i data-lucide="credit-card" class="w-5 h-5 text-muted"></i>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label for="card_number" class="block text-[10px] font-bold uppercase tracking-widest text-muted mb-2">Card Number</label>
+                            <input type="text" id="card_number" class="w-full bg-surface border border-muted/30 rounded px-4 py-3 text-text focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary" placeholder="0000 0000 0000 0000" maxlength="19">
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="card_expiry" class="block text-[10px] font-bold uppercase tracking-widest text-muted mb-2">Expiry Date</label>
+                                <input type="text" id="card_expiry" class="w-full bg-surface border border-muted/30 rounded px-4 py-3 text-text focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary" placeholder="MM/YY" maxlength="5">
+                            </div>
+                            <div>
+                                <label for="card_cvv" class="block text-[10px] font-bold uppercase tracking-widest text-muted mb-2">CVV</label>
+                                <input type="text" id="card_cvv" class="w-full bg-surface border border-muted/30 rounded px-4 py-3 text-text focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary" placeholder="000" maxlength="4">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="card_name" class="block text-[10px] font-bold uppercase tracking-widest text-muted mb-2">Name on Card</label>
+                            <input type="text" id="card_name" class="w-full bg-surface border border-muted/30 rounded px-4 py-3 text-text focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary" placeholder="JANE DOE">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex gap-4 pt-8">
+                    <button onclick="CheckoutController.step(2)" class="px-8 py-4 border border-muted/30 text-muted font-bold uppercase tracking-widest rounded hover:text-text transition-colors focus:outline-none focus:ring-1 focus:ring-muted">
+                        Back
+                    </button>
+                    <button onclick="CheckoutController.pay()" class="flex-grow py-4 bg-accent text-surface font-bold uppercase tracking-widest rounded hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2">
+                        Place Order
+                    </button>
+                </div>
+            </section>
+        </div>
+
+        
+        <aside class="w-full lg:w-96 flex-shrink-0">
+            <div class="sticky top-28 bg-surface border border-muted/20 rounded-lg p-8 space-y-6 shadow-sm">
+                <h2 class="font-serif text-2xl text-text border-b border-muted/10 pb-4">Order Summary</h2>
+                
+                
+                <div class="space-y-4 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
+                    {% for item in cart_items %}
+                    <div class="flex gap-4 items-center">
+                        <div class="w-12 h-16 bg-muted/5 rounded flex-shrink-0">
+                            {% if item.product.images.all %}
+                            <img src="{{ item.product.images.all.0.url }}" class="w-full h-full object-cover rounded" loading="lazy">
+                            {% endif %}
+                        </div>
+                        <div class="flex-grow overflow-hidden">
+                            <p class="text-xs font-bold text-text truncate">{{ item.product.name }}</p>
+                            <p class="text-[10px] text-muted">{{ item.quantity }}x ₱{{ item.unit_price|floatformat:2 }}</p>
+                        </div>
+                        <p class="text-xs font-medium text-text">₱{{ item.line_total|floatformat:2 }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                
+                <div class="space-y-3 pt-4 border-t border-muted/10">
+                    <div class="flex justify-between text-xs">
+                        <span class="text-muted">Subtotal</span>
+                        <span class="text-text font-medium">₱{{ cart_total|floatformat:2 }}</span>
+                    </div>
+                    <div class="flex justify-between text-xs">
+                        <span class="text-muted">Shipping (<span id="summary-shipping-name">Standard</span>)</span>
+                        <span id="summary-shipping-cost" class="text-text font-medium">₱0.00</span>
+                    </div>
+                    <div class="pt-4 border-t border-muted/10 flex justify-between items-baseline">
+                        <span class="text-lg font-serif text-text">Total</span>
+                        <span id="summary-total" class="text-2xl font-serif text-text" data-base="{{ cart_total|floatformat:2 }}">₱{{ cart_total|floatformat:2 }}</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+</div>
+
+
+<div id="processing-overlay" class="hidden fixed inset-0 z-[100] bg-surface/90 backdrop-blur-sm flex flex-col items-center justify-center">
+    <div class="relative w-20 h-20 mb-8">
+        <div class="absolute inset-0 border-4 border-muted/20 rounded-full"></div>
+        <div class="absolute inset-0 border-4 border-primary rounded-full border-t-transparent animate-spin"></div>
+    </div>
+    <h2 class="font-serif text-2xl text-text mb-2">Processing your payment...</h2>
+    <p class="text-muted animate-pulse">Securely confirming your order with Balay & Beyond.</p>
+</div>
+
+
+<form id="final-checkout-form" action="{% url 'payments:process' %}" method="POST" class="hidden">
+    {% csrf_token %}
+    <input type="hidden" name="full_name" id="final-full-name">
+    <input type="hidden" name="street" id="final-street">
+    <input type="hidden" name="city" id="final-city">
+    <input type="hidden" name="province" id="final-province">
+    <input type="hidden" name="zip_code" id="final-zip-code">
+    <input type="hidden" name="country" id="final-country-val">
+    <input type="hidden" name="shipping_method" id="final-shipping-method">
+    <input type="hidden" name="shipping_cost" id="final-shipping-cost-val">
+</form>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'js/checkout.js' %}"></script>
+{% endblock %}

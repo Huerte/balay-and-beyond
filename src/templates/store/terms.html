@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Terms of Service{% endblock %}
+{% block meta_description %}Read the Balay & Beyond Terms of Service before placing an order. These terms govern your use of our website and the purchase of our products.{% endblock %}
+
+{% block content %}
+
+<header class="bg-surface border-b border-muted/10">
+    <div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 pt-8 pb-4">
+        <nav class="flex text-xs uppercase tracking-widest font-medium" aria-label="Breadcrumb">
+            <ol class="flex items-center space-x-2">
+                <li><a href="{% url 'store:home' %}" class="text-muted hover:text-primary transition-colors focus:outline-none focus:ring-1 focus:ring-primary rounded px-1">Home</a></li>
+                <li class="text-muted/40">/</li>
+                <li class="text-text">Terms of Service</li>
+            </ol>
+        </nav>
+    </div>
+    <div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-16">
+        <div class="max-w-3xl">
+            <h1 class="font-serif text-5xl md:text-6xl text-text leading-tight">Terms of Service</h1>
+            <p class="mt-4 text-muted text-sm">Last updated: May 2025</p>
+        </div>
+    </div>
+</header>
+
+<div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-20">
+    <div class="max-w-3xl space-y-14">
+
+        <!-- Intro -->
+        <section aria-labelledby="terms-intro">
+            <h2 id="terms-intro" class="font-serif text-2xl text-text mb-4">1. Acceptance of terms</h2>
+            <p class="text-muted text-[15px] leading-relaxed">
+                By accessing or using the Balay & Beyond website, you agree to be bound by these Terms of Service. If you do not agree, please do not use the site. These terms apply to all visitors, registered users, and customers.
+            </p>
+        </section>
+
+        <!-- Section 2 -->
+        <section aria-labelledby="terms-account">
+            <h2 id="terms-account" class="font-serif text-2xl text-text mb-4">2. Your account</h2>
+            <p class="text-muted text-[15px] leading-relaxed mb-4">When you create an account, you agree to:</p>
+            <ul class="space-y-3 text-muted text-[15px] leading-relaxed list-none pl-0">
+                <li class="flex gap-3 items-start"><i data-lucide="circle-dot" class="w-4 h-4 text-primary mt-1 flex-shrink-0"></i><span>Provide accurate and current information during registration.</span></li>
+                <li class="flex gap-3 items-start"><i data-lucide="circle-dot" class="w-4 h-4 text-primary mt-1 flex-shrink-0"></i><span>Keep your password confidential and not share access with others.</span></li>
+                <li class="flex gap-3 items-start"><i data-lucide="circle-dot" class="w-4 h-4 text-primary mt-1 flex-shrink-0"></i><span>Notify us immediately if you suspect unauthorized use of your account.</span></li>
+            </ul>
+            <p class="mt-4 text-muted text-[15px] leading-relaxed">
+                We reserve the right to suspend or terminate accounts that violate these terms or engage in fraudulent activity.
+            </p>
+        </section>
+
+        <!-- Section 3 -->
+        <section aria-labelledby="terms-orders">
+            <h2 id="terms-orders" class="font-serif text-2xl text-text mb-4">3. Orders and payments</h2>
+            <p class="text-muted text-[15px] leading-relaxed mb-4">
+                Placing an order through Balay & Beyond constitutes an offer to purchase. We reserve the right to refuse or cancel any order at our discretion, including in cases of pricing errors, stock inaccuracies, or suspected fraud. You will be notified and refunded promptly if an order is cancelled by us.
+            </p>
+            <ul class="space-y-3 text-muted text-[15px] leading-relaxed list-none pl-0">
+                <li class="flex gap-3 items-start"><i data-lucide="circle-dot" class="w-4 h-4 text-primary mt-1 flex-shrink-0"></i><span>All prices are listed in Philippine Peso (PHP) and include applicable taxes where stated.</span></li>
+                <li class="flex gap-3 items-start"><i data-lucide="circle-dot" class="w-4 h-4 text-primary mt-1 flex-shrink-0"></i><span>Payment is due in full at the time of checkout.</span></li>
+                <li class="flex gap-3 items-start"><i data-lucide="circle-dot" class="w-4 h-4 text-primary mt-1 flex-shrink-0"></i><span>Shipping costs are calculated at checkout based on your selected delivery method and address.</span></li>
+            </ul>
+        </section>
+
+        <!-- Section 4 -->
+        <section aria-labelledby="terms-returns">
+            <h2 id="terms-returns" class="font-serif text-2xl text-text mb-4">4. Returns and refunds</h2>
+            <p class="text-muted text-[15px] leading-relaxed">
+                We want you to be satisfied with every purchase. If a product arrives damaged or does not match its description, contact us within 7 days of receipt. Eligible items may be returned in unused, original condition within 14 days of delivery. Refunds are processed within 5 to 10 business days after we receive and inspect the returned item. For full details, see our <a href="{% url 'store:shipping' %}" class="text-primary hover:underline underline-offset-4">Shipping & Returns</a> page.
+            </p>
+        </section>
+
+        <!-- Section 5 -->
+        <section aria-labelledby="terms-ip">
+            <h2 id="terms-ip" class="font-serif text-2xl text-text mb-4">5. Intellectual property</h2>
+            <p class="text-muted text-[15px] leading-relaxed">
+                All content on this site — including text, photography, product descriptions, logos, and design — is the property of Balay & Beyond or its content suppliers and is protected by applicable intellectual property laws. You may not reproduce, distribute, or create derivative works from any content without prior written permission.
+            </p>
+        </section>
+
+        <!-- Section 6 -->
+        <section aria-labelledby="terms-conduct">
+            <h2 id="terms-conduct" class="font-serif text-2xl text-text mb-4">6. Acceptable use</h2>
+            <p class="text-muted text-[15px] leading-relaxed mb-4">You agree not to use this site to:</p>
+            <ul class="space-y-3 text-muted text-[15px] leading-relaxed list-none pl-0">
+                <li class="flex gap-3 items-start"><i data-lucide="circle-dot" class="w-4 h-4 text-primary mt-1 flex-shrink-0"></i><span>Submit false, misleading, or fraudulent information.</span></li>
+                <li class="flex gap-3 items-start"><i data-lucide="circle-dot" class="w-4 h-4 text-primary mt-1 flex-shrink-0"></i><span>Attempt to gain unauthorized access to any part of the system.</span></li>
+                <li class="flex gap-3 items-start"><i data-lucide="circle-dot" class="w-4 h-4 text-primary mt-1 flex-shrink-0"></i><span>Interfere with or disrupt the website or servers.</span></li>
+                <li class="flex gap-3 items-start"><i data-lucide="circle-dot" class="w-4 h-4 text-primary mt-1 flex-shrink-0"></i><span>Post reviews or content that is defamatory, offensive, or infringes on the rights of others.</span></li>
+            </ul>
+        </section>
+
+        <!-- Section 7 -->
+        <section aria-labelledby="terms-liability">
+            <h2 id="terms-liability" class="font-serif text-2xl text-text mb-4">7. Limitation of liability</h2>
+            <p class="text-muted text-[15px] leading-relaxed">
+                To the maximum extent permitted by law, Balay & Beyond shall not be liable for any indirect, incidental, or consequential damages arising from your use of the site or products purchased through it. Our total liability in connection with any claim shall not exceed the amount you paid for the order giving rise to that claim.
+            </p>
+        </section>
+
+        <!-- Section 8 -->
+        <section aria-labelledby="terms-governing">
+            <h2 id="terms-governing" class="font-serif text-2xl text-text mb-4">8. Governing law</h2>
+            <p class="text-muted text-[15px] leading-relaxed">
+                These terms are governed by the laws of the Republic of the Philippines. Any disputes shall be subject to the exclusive jurisdiction of the courts located therein.
+            </p>
+        </section>
+
+        <!-- Section 9 -->
+        <section aria-labelledby="terms-changes">
+            <h2 id="terms-changes" class="font-serif text-2xl text-text mb-4">9. Changes to these terms</h2>
+            <p class="text-muted text-[15px] leading-relaxed">
+                We may revise these terms at any time. The revised date at the top of this page reflects the most recent update. Continued use of the site after changes are posted constitutes your acceptance of the updated terms.
+            </p>
+        </section>
+
+        <!-- Contact -->
+        <div class="border-t border-muted/20 pt-10">
+            <p class="text-muted text-[15px] leading-relaxed">
+                Have a question about these terms? <a href="{% url 'store:contact' %}" class="text-primary hover:underline underline-offset-4 font-medium">Contact us</a> and we will respond within two business days.
+            </p>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

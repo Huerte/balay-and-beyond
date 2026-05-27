@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}About Us - Balay & Beyond{% endblock %}
+{% block meta_description %}Learn the story behind Balay & Beyond — a curated home goods brand built around warmth, honest craftsmanship, and spaces that feel lived-in.{% endblock %}
+
+{% block content %}
+
+<!-- Hero Section -->
+<header class="relative bg-surface overflow-hidden border-b border-muted/10">
+    <div class="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-primary/10 to-transparent pointer-events-none"></div>
+    <div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-24 md:py-32 relative z-10">
+        <div class="max-w-3xl">
+            <p class="text-primary text-sm font-bold tracking-widest uppercase mb-6 flex items-center gap-4">
+                <span class="w-8 h-[2px] bg-primary rounded"></span> Our Story
+            </p>
+            <h1 class="font-serif text-5xl md:text-7xl text-text leading-tight mb-8">
+                A home is more than four walls.
+            </h1>
+            <p class="text-muted text-lg md:text-xl leading-relaxed max-w-2xl">
+                Balay & Beyond started with one simple belief: the objects you surround yourself with every day should earn their place. Not by being expensive, but by being right.
+            </p>
+        </div>
+    </div>
+</header>
+
+<!-- Mission -->
+<section class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-24">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24 items-center">
+        <div class="lg:col-span-5 relative">
+            <div class="aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl relative group">
+                <img src="{% static 'assets/images/hero.jpg' %}" alt="A warm, curated living space" class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105">
+                <div class="absolute inset-0 bg-gradient-to-tr from-text/40 to-transparent opacity-60"></div>
+            </div>
+        </div>
+        
+        <div class="lg:col-span-7">
+            <h2 class="font-serif text-4xl md:text-5xl text-text mb-8">What we stand for</h2>
+            <div class="space-y-6 text-muted text-lg leading-relaxed">
+                <p>
+                    We source every product with the same question in mind: would we put this in our own home? If the answer is anything less than yes, it does not make it to the shop. That standard has kept our catalog intentionally small and our returns rate near zero.
+                </p>
+                <p>
+                    We source globally but think locally — every piece is chosen to fit real life, not a mood board. We do not manufacture. We find the people and workshops that already do it well, and we connect them with households that deserve their work.
+                </p>
+            </div>
+            
+            <div class="mt-12 grid grid-cols-2 gap-8 border-t border-muted/20 pt-12">
+                <div>
+                    <p class="text-4xl font-serif text-primary mb-2">0%</p>
+                    <p class="text-sm text-muted uppercase tracking-wider font-bold">Compromise on Quality</p>
+                </div>
+                <div>
+                    <p class="text-4xl font-serif text-accent mb-2">100%</p>
+                    <p class="text-sm text-muted uppercase tracking-wider font-bold">Curated with Intent</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Values Bento Grid -->
+<section class="bg-surface relative py-24 overflow-hidden">
+    <!-- Background Decor -->
+    <div class="absolute inset-0 bg-primary/5"></div>
+    
+    <div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 relative z-10">
+        <div class="text-center max-w-3xl mx-auto mb-16">
+            <p class="text-primary text-sm font-bold tracking-widest uppercase mb-4">Our Promises</p>
+            <h2 class="font-serif text-4xl md:text-5xl text-text">Three things we will never compromise on</h2>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+            <!-- Value 1 -->
+            <div class="group bg-white/50 backdrop-blur-xl border border-white/40 rounded-3xl p-10 hover:bg-white/70 hover:shadow-xl transition-all duration-300 ease-out">
+                <div class="w-14 h-14 flex items-center justify-center rounded-2xl bg-primary/10 text-primary mb-8 group-hover:-translate-y-2 transition-transform duration-300 ease-out">
+                    <i data-lucide="leaf" class="w-7 h-7"></i>
+                </div>
+                <h3 class="font-serif text-2xl text-text mb-4">Material Integrity</h3>
+                <p class="text-muted leading-relaxed">
+                    No cheap substitutes, no greenwashing. We verify material claims before any product is listed. Natural, recycled, or responsibly manufactured — we know the chain.
+                </p>
+            </div>
+            
+            <!-- Value 2 -->
+            <div class="group bg-white/50 backdrop-blur-xl border border-white/40 rounded-3xl p-10 hover:bg-white/70 hover:shadow-xl transition-all duration-300 ease-out md:-translate-y-6">
+                <div class="w-14 h-14 flex items-center justify-center rounded-2xl bg-accent/10 text-accent mb-8 group-hover:-translate-y-2 transition-transform duration-300 ease-out">
+                    <i data-lucide="shield-check" class="w-7 h-7"></i>
+                </div>
+                <h3 class="font-serif text-2xl text-text mb-4">Honest Pricing</h3>
+                <p class="text-muted leading-relaxed">
+                    We price to reflect true cost, not perceived luxury. You pay for the object, not the packaging, the influencer, or an artificially inflated margin.
+                </p>
+            </div>
+            
+            <!-- Value 3 -->
+            <div class="group bg-white/50 backdrop-blur-xl border border-white/40 rounded-3xl p-10 hover:bg-white/70 hover:shadow-xl transition-all duration-300 ease-out">
+                <div class="w-14 h-14 flex items-center justify-center rounded-2xl bg-primary/10 text-primary mb-8 group-hover:-translate-y-2 transition-transform duration-300 ease-out">
+                    <i data-lucide="users" class="w-7 h-7"></i>
+                </div>
+                <h3 class="font-serif text-2xl text-text mb-4">Human Support</h3>
+                <p class="text-muted leading-relaxed">
+                    No bots, no tickets with seven-day response windows. Every question reaches a person. We hold that standard even as we grow.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-24">
+    <div class="bg-text rounded-3xl overflow-hidden relative group">
+        <div class="absolute inset-0 opacity-20 transition-opacity duration-700 group-hover:opacity-30">
+            <img src="{% static 'assets/images/hero.jpg' %}" alt="Background texture" class="w-full h-full object-cover grayscale mix-blend-overlay">
+        </div>
+        
+        <div class="relative z-10 px-6 py-20 md:py-32 text-center max-w-3xl mx-auto">
+            <h2 class="font-serif text-4xl md:text-6xl text-surface mb-8">Ready to explore?</h2>
+            <p class="text-surface/70 text-lg md:text-xl mb-12 leading-relaxed">
+                The collection is curated and updated regularly. If you have a question about any product, our team is a message away.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-6 justify-center">
+                <a href="{% url 'store:shop' %}" class="inline-flex items-center justify-center px-10 py-5 bg-primary text-surface font-bold rounded-xl hover:bg-surface hover:text-text transition-colors duration-300 ease-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-text">
+                    Shop the Collection
+                </a>
+                <a href="{% url 'store:contact' %}" class="inline-flex items-center justify-center px-10 py-5 bg-white/10 backdrop-blur-sm border border-white/20 text-surface font-bold rounded-xl hover:bg-white/20 transition-colors duration-300 ease-out focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-text">
+                    Get in Touch
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

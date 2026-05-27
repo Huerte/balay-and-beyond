@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}FAQ - Balay & Beyond{% endblock %}
+
+{% block content %}
+
+<header class="bg-surface border-b border-muted/10">
+    <div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 pt-8 pb-4">
+        <nav class="flex text-xs uppercase tracking-widest font-medium" aria-label="Breadcrumb">
+            <ol class="flex items-center space-x-2">
+                <li><a href="{% url 'store:home' %}" class="text-muted hover:text-primary transition-colors focus:outline-none focus:ring-1 focus:ring-primary rounded px-1">Home</a></li>
+                <li class="text-muted/40">/</li>
+                <li class="text-text">FAQ</li>
+            </ol>
+        </nav>
+    </div>
+    <div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-16">
+        <div class="max-w-3xl">
+            <h1 class="font-serif text-5xl md:text-6xl text-text leading-tight">Frequently Asked Questions</h1>
+            <p class="mt-4 text-muted text-sm">Find answers to common questions about our products and services.</p>
+        </div>
+    </div>
+</header>
+
+<div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-20">
+    <div class="max-w-3xl space-y-14">
+
+        <section aria-labelledby="faq-store">
+            <h2 id="faq-store" class="font-serif text-2xl text-text mb-4">Do you have a physical store?</h2>
+            <p class="text-muted text-[15px] leading-relaxed">
+                Currently, Balay & Beyond operates exclusively online to bring you the best prices on our curated collections. We occasionally host pop-up events in Metro Manila.
+            </p>
+        </section>
+        
+        <section aria-labelledby="faq-order">
+            <h2 id="faq-order" class="font-serif text-2xl text-text mb-4">Can I cancel or modify my order?</h2>
+            <p class="text-muted text-[15px] leading-relaxed">
+                Orders are processed quickly, but if you contact us within 2 hours of placing your order, we will do our best to accommodate modifications or cancellations.
+            </p>
+        </section>
+        
+        <section aria-labelledby="faq-payment">
+            <h2 id="faq-payment" class="font-serif text-2xl text-text mb-4">What payment methods do you accept?</h2>
+            <p class="text-muted text-[15px] leading-relaxed">
+                We accept major credit cards (Visa, Mastercard), GCash, and Maya. All transactions are securely processed.
+            </p>
+        </section>
+        
+        <section aria-labelledby="faq-sustainability">
+            <h2 id="faq-sustainability" class="font-serif text-2xl text-text mb-4">Are your products sustainably sourced?</h2>
+            <p class="text-muted text-[15px] leading-relaxed">
+                We work closely with our suppliers to ensure responsible sourcing. Many of our wooden and woven products are handcrafted by local artisans using sustainable materials.
+            </p>
+        </section>
+
+        <!-- Contact -->
+        <div class="border-t border-muted/20 pt-10">
+            <p class="text-muted text-[15px] leading-relaxed">
+                Have another question? <a href="{% url 'store:contact' %}" class="text-primary hover:underline underline-offset-4 font-medium">Contact us</a> and we will respond within two business days.
+            </p>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

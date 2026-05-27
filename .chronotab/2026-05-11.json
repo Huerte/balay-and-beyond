@@ -1,0 +1,37 @@
+{
+  "project": "FrankProject",
+  "date": "2026-05-11",
+  "totalSeconds": 1173,
+  "branches": {
+    "_default": {
+      "scrape_ikea.py": {
+        "seconds": 679,
+        "lastActive": "2026-05-11T10:46:10.748Z"
+      },
+      "ikea_store.json": {
+        "seconds": 89,
+        "lastActive": "2026-05-11T10:41:16.251Z"
+      },
+      "products.json": {
+        "seconds": 7,
+        "lastActive": "2026-05-11T10:41:06.145Z"
+      },
+      "scrape_ikea2.py": {
+        "seconds": 113,
+        "lastActive": "2026-05-11T10:41:18.297Z"
+      },
+      "ikea_search_products.json": {
+        "seconds": 29,
+        "lastActive": "2026-05-11T10:39:49.456Z"
+      },
+      "seed_demo.py": {
+        "seconds": 233,
+        "lastActive": "2026-05-11T10:47:51.588Z"
+      },
+      "__init__.py": {
+        "seconds": 23,
+        "lastActive": "2026-05-11T10:46:33.932Z"
+      }
+    }
+  }
+}

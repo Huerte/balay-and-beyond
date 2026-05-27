@@ -1,0 +1,291 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} - Balay & Beyond{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+    
+    <nav class="flex text-xs uppercase tracking-widest font-medium mb-8 overflow-x-auto whitespace-nowrap" aria-label="Breadcrumb">
+        <ol class="flex items-center space-x-2">
+            <li><a href="{% url 'store:home' %}" class="text-muted hover:text-primary transition-colors focus:outline-none focus:ring-1 focus:ring-primary rounded px-1">Home</a></li>
+            {% if product.category.parent %}
+            <li class="text-muted/40">/</li>
+            <li><a href="{% url 'store:category' product.category.parent.slug %}" class="text-muted hover:text-primary transition-colors focus:outline-none focus:ring-1 focus:ring-primary rounded px-1">{{ product.category.parent.name }}</a></li>
+            {% endif %}
+            <li class="text-muted/40">/</li>
+            <li><a href="{% url 'store:category' product.category.slug %}" class="text-muted hover:text-primary transition-colors focus:outline-none focus:ring-1 focus:ring-primary rounded px-1">{{ product.category.name }}</a></li>
+            <li class="text-muted/40">/</li>
+            <li class="text-text truncate max-w-[150px] sm:max-w-none">{{ product.name }}</li>
+        </ol>
+    </nav>
+
+    
+    <div class="flex flex-col lg:flex-row gap-12 lg:gap-16">
+        
+        
+        <div class="w-full lg:w-3/5 space-y-4">
+            
+            <div class="relative w-full aspect-[4/5] bg-muted/5 rounded-lg overflow-hidden group">
+                {% if product_images %}
+                <img id="main-product-image" src="{{ product_images.0.url }}" alt="{{ product.name }}" class="w-full h-full object-cover transition-transform duration-500 lg:group-hover:scale-150 origin-center cursor-zoom-in" loading="lazy">
+                {% else %}
+                <img id="main-product-image" src="https://picsum.photos/id/{{ product.id|default:1 }}/800/1000" alt="{{ product.name }}" class="w-full h-full object-cover transition-transform duration-500 lg:group-hover:scale-150 origin-center cursor-zoom-in" loading="lazy">
+                {% endif %}
+            </div>
+            
+            
+            {% if product_images.count > 1 or not product_images %}
+            <div class="flex overflow-x-auto gap-4 pb-2 custom-scrollbar">
+                {% if product_images %}
+                    {% for img in product_images %}
+                    <button onclick="document.getElementById('main-product-image').src='{{ img.url }}'" class="w-20 lg:w-24 aspect-square flex-shrink-0 bg-muted/5 rounded overflow-hidden focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 border-2 border-transparent hover:border-primary transition-colors">
+                        <img src="{{ img.url }}" alt="{{ product.name }} thumbnail" class="w-full h-full object-cover" loading="lazy">
+                    </button>
+                    {% endfor %}
+                {% else %}
+                    
+                    {% for i in '12345'|make_list %}
+                    <button onclick="document.getElementById('main-product-image').src='https://picsum.photos/id/{{ product.id|default:1|add:forloop.counter }}/800/1000'" class="w-20 lg:w-24 aspect-square flex-shrink-0 bg-muted/5 rounded overflow-hidden focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 border-2 border-transparent hover:border-primary transition-colors">
+                        <img src="https://picsum.photos/id/{{ product.id|default:1|add:forloop.counter }}/200/200" alt="{{ product.name }} thumbnail" class="w-full h-full object-cover" loading="lazy">
+                    </button>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+
+        
+        <div class="w-full lg:w-2/5 flex flex-col">
+            <h1 class="font-serif text-4xl sm:text-5xl text-text leading-tight mb-4">{{ product.name }}</h1>
+            
+            
+            <div class="flex items-center gap-3 mb-6">
+                <div class="flex text-primary">
+                    {% for i in "12345" %}
+                        <i data-lucide="star" class="w-4 h-4 {% if forloop.counter <= product.rating|default:5 %}fill-primary{% endif %}"></i>
+                    {% endfor %}
+                </div>
+                <a href="#reviews-tab" onclick="switchTab('reviews')" class="text-sm text-muted hover:text-primary transition-colors focus:outline-none focus:ring-1 focus:ring-primary rounded px-1">
+                    {{ product.reviews.count|default:124 }} reviews
+                </a>
+            </div>
+
+            
+            <div class="flex items-end gap-3 mb-6">
+                {% if product.compare_price %}
+                <span class="text-lg text-muted line-through mb-0.5">₱{{ product.compare_price|floatformat:2 }}</span>
+                {% endif %}
+                <span class="text-2xl font-serif text-text font-medium">₱{{ product.price|floatformat:2 }}</span>
+            </div>
+
+            
+            <p class="text-muted text-sm leading-relaxed mb-8 line-clamp-3">
+                {{ product.description|default:"A beautifully crafted essential designed to elevate your everyday living. Features premium materials and timeless aesthetic appeal." }}
+            </p>
+
+            
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 mb-10">
+                
+                <div class="flex items-center justify-between sm:justify-start border border-muted/30 rounded h-14 sm:w-32 flex-shrink-0">
+                    <button type="button" onclick="const q=document.getElementById('qty'); q.value=Math.max(1, parseInt(q.value)-1)" class="px-4 h-full text-muted hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-inset rounded-l" aria-label="Decrease quantity">
+                        <i data-lucide="minus" class="w-4 h-4"></i>
+                    </button>
+                    <input type="number" id="qty" value="1" min="1" max="{{ product.stock|default:10 }}" class="w-12 text-center bg-transparent border-none text-text font-medium focus:ring-0 p-0" aria-label="Quantity">
+                    <button type="button" onclick="const q=document.getElementById('qty'); q.value=Math.min(parseInt(q.max)||10, parseInt(q.value)+1)" class="px-4 h-full text-muted hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-inset rounded-r" aria-label="Increase quantity">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                
+                
+                <button type="button" onclick="if(window.cartApi) cartApi.add('{{ product.id }}', parseInt(document.getElementById('qty').value))" class="flex-grow h-14 bg-primary text-surface font-bold uppercase tracking-widest rounded hover:bg-muted transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 flex items-center justify-center gap-2">
+                    <i data-lucide="shopping-bag" class="w-5 h-5"></i> Add to Cart
+                </button>
+
+                <button type="button" data-wishlist-btn data-product-id="{{ product.id }}" class="h-14 w-14 sm:w-14 flex items-center justify-center border {% if in_wishlist %}border-danger text-danger{% else %}border-muted/30 text-muted{% endif %} rounded hover:text-danger hover:border-danger transition-colors focus:outline-none focus:ring-2 focus:ring-danger focus:ring-offset-2 flex-shrink-0" aria-label="Add to wishlist">
+                    <i data-lucide="heart" class="w-5 h-5 {% if in_wishlist %}fill-danger{% endif %}"></i>
+                </button>
+            </div>
+
+            
+            <ul class="space-y-3 mb-10 border-t border-b border-muted/10 py-6">
+                <li class="flex items-start gap-3 text-sm text-text">
+                    <i data-lucide="check" class="w-5 h-5 text-primary flex-shrink-0"></i>
+                    <span>Responsibly sourced, premium grade materials</span>
+                </li>
+                <li class="flex items-start gap-3 text-sm text-text">
+                    <i data-lucide="check" class="w-5 h-5 text-primary flex-shrink-0"></i>
+                    <span>Hand-finished for a unique, artisanal touch</span>
+                </li>
+                <li class="flex items-start gap-3 text-sm text-text">
+                    <i data-lucide="check" class="w-5 h-5 text-primary flex-shrink-0"></i>
+                    <span>Designed to patina and age gracefully over time</span>
+                </li>
+            </ul>
+
+            
+            <div class="space-y-4">
+                <div class="flex items-center gap-3 text-sm">
+                    <i data-lucide="truck" class="w-5 h-5 text-muted"></i>
+                    <span class="text-text font-medium">Estimated delivery 3-5 business days</span>
+                </div>
+                <div class="flex items-center gap-3 text-sm">
+                    <i data-lucide="rotate-ccw" class="w-5 h-5 text-muted"></i>
+                    <span class="text-muted">30-day hassle-free returns. <a href="#" class="text-primary hover:underline focus:outline-none focus:ring-1 focus:ring-primary rounded">Read terms</a></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <div class="mt-24 border-t border-muted/10 pt-12" id="reviews-tab">
+        <div class="flex flex-wrap border-b border-muted/20 gap-8">
+            <button onclick="switchTab('description')" id="tab-btn-description" class="pb-4 text-sm font-bold uppercase tracking-widest text-text border-b-2 border-primary focus:outline-none focus:ring-2 focus:ring-primary rounded-t">
+                Description
+            </button>
+            <button onclick="switchTab('specifications')" id="tab-btn-specifications" class="pb-4 text-sm font-bold uppercase tracking-widest text-muted border-b-2 border-transparent hover:text-text transition-colors focus:outline-none focus:ring-2 focus:ring-primary rounded-t">
+                Specifications
+            </button>
+            <button onclick="switchTab('reviews')" id="tab-btn-reviews" class="pb-4 text-sm font-bold uppercase tracking-widest text-muted border-b-2 border-transparent hover:text-text transition-colors focus:outline-none focus:ring-2 focus:ring-primary rounded-t">
+                Reviews ({{ product.reviews.count|default:0 }})
+            </button>
+        </div>
+
+        <div class="py-12 max-w-3xl">
+            
+            <div id="tab-description" class="space-y-6 text-muted leading-relaxed">
+                <p>
+                    {{ product.description|default:"Detailed description goes here. This piece is a testament to honest design, combining raw beauty with everyday functionality." }}
+                </p>
+            </div>
+
+            
+            <div id="tab-specifications" class="hidden space-y-4">
+                <div class="grid grid-cols-3 border-b border-muted/10 py-3 text-sm">
+                    <span class="text-muted font-medium uppercase tracking-widest text-xs">SKU</span>
+                    <span class="col-span-2 text-text">{{ product.sku|default:"N/A" }}</span>
+                </div>
+                <div class="grid grid-cols-3 border-b border-muted/10 py-3 text-sm">
+                    <span class="text-muted font-medium uppercase tracking-widest text-xs">Category</span>
+                    <span class="col-span-2 text-text">{{ product.category.name }}</span>
+                </div>
+                <div class="grid grid-cols-3 border-b border-muted/10 py-3 text-sm">
+                    <span class="text-muted font-medium uppercase tracking-widest text-xs">Stock Status</span>
+                    <span class="col-span-2 text-text">{% if product.stock > 0 %}In Stock{% else %}Out of Stock{% endif %}</span>
+                </div>
+            </div>
+
+            
+            <div id="tab-reviews" class="hidden">
+                <div class="flex items-center justify-between mb-8">
+                    <div>
+                        <h3 class="font-serif text-2xl text-text">Customer Reviews</h3>
+                        <p class="text-muted text-sm mt-1">Based on {{ product.reviews.count|default:0 }} reviews</p>
+                    </div>
+                    <button class="px-6 py-3 border border-muted/30 text-xs font-bold uppercase tracking-widest rounded hover:border-primary hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary">
+                        Write a Review
+                    </button>
+                </div>
+
+                <div class="space-y-8">
+                    {% if product.reviews.all %}
+                        {% for review in product.reviews.all %}
+                        <div class="border-b border-muted/10 pb-8">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex text-primary">
+                                    {% for i in "12345" %}
+                                        <i data-lucide="star" class="w-4 h-4 {% if forloop.counter <= review.rating %}fill-primary{% endif %}"></i>
+                                    {% endfor %}
+                                </div>
+                                <span class="text-xs text-muted">{{ review.created_at|date:"M d, Y" }}</span>
+                            </div>
+                            <p class="text-sm text-muted mb-3">{{ review.body }}</p>
+                            <p class="text-xs text-text font-medium">— {{ review.user.get_full_name|default:review.user.email }}</p>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-8">
+                            <p class="text-muted">No reviews yet. Be the first to share your thoughts!</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    {% if related_products %}
+    <div class="mt-24">
+        <div class="flex items-end justify-between mb-8 border-b border-muted/10 pb-4">
+            <h2 class="font-serif text-3xl text-text">You May Also Like</h2>
+        </div>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {% for related in related_products %}
+            <div class="group">
+                <div class="relative aspect-[3/4] overflow-hidden rounded bg-muted/5 mb-4">
+                    <a href="{% url 'store:product_detail' related.slug %}" class="block h-full focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded">
+                        {% if related.images.all %}
+                        <img src="{{ related.images.all.0.url }}" alt="{{ related.name }}" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy">
+                        {% else %}
+                        <img src="https://picsum.photos/id/{{ related.id|default:10|add:forloop.counter }}/600/800" alt="{{ related.name }}" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy">
+                        {% endif %}
+                    </a>
+                </div>
+                <div>
+                    <h3 class="font-serif text-lg text-text">
+                        <a href="{% url 'store:product_detail' related.slug %}" class="hover:text-primary transition-colors focus:outline-none focus:ring-1 focus:ring-primary rounded px-1 -mx-1">
+                            {{ related.name }}
+                        </a>
+                    </h3>
+                    <p class="text-text font-medium mt-1">₱{{ related.price|floatformat:2 }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    function switchTab(tabId) {
+        ['description', 'specifications', 'reviews'].forEach(id => {
+            document.getElementById('tab-' + id).classList.add('hidden');
+            const btn = document.getElementById('tab-btn-' + id);
+            btn.classList.remove('border-primary', 'text-text');
+            btn.classList.add('border-transparent', 'text-muted');
+        });
+        
+        document.getElementById('tab-' + tabId).classList.remove('hidden');
+        const activeBtn = document.getElementById('tab-btn-' + tabId);
+        activeBtn.classList.remove('border-transparent', 'text-muted');
+        activeBtn.classList.add('border-primary', 'text-text');
+        
+        lucide.createIcons();
+    }
+
+    // Desktop Image Zoom
+    const mainImgContainer = document.querySelector('.cursor-zoom-in').parentElement;
+    const mainImg = document.getElementById('main-product-image');
+
+    mainImgContainer.addEventListener('mousemove', function(e) {
+        if(window.innerWidth >= 1024) { // Only on desktop
+            const bounds = this.getBoundingClientRect();
+            const x = e.clientX - bounds.left;
+            const y = e.clientY - bounds.top;
+            const xPercent = (x / bounds.width) * 100;
+            const yPercent = (y / bounds.height) * 100;
+            
+            mainImg.style.transformOrigin = `${xPercent}% ${yPercent}%`;
+        }
+    });
+
+    mainImgContainer.addEventListener('mouseleave', function() {
+        if(window.innerWidth >= 1024) {
+            mainImg.style.transformOrigin = 'center center';
+        }
+    });
+</script>
+{% endblock %}

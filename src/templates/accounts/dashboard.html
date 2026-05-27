@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+
+{% block title %}Account Dashboard{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    
+    <div class="border-b border-muted/10 pb-8 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div>
+            <h1 class="font-serif text-4xl text-text">Hello, {{ user.first_name|default:user.username }}</h1>
+            <p class="text-muted mt-2">Manage your orders, addresses, and account settings from your private dashboard.</p>
+        </div>
+        <form action="{% url 'accounts:logout' %}" method="POST">
+            {% csrf_token %}
+            <button type="submit" class="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-muted hover:text-danger transition-colors focus:outline-none focus:ring-1 focus:ring-danger rounded px-2">
+                <i data-lucide="log-out" class="w-4 h-4"></i> Logout
+            </button>
+        </form>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+        
+        <aside class="lg:col-span-3 space-y-4">
+            <nav class="space-y-1">
+                <a href="#orders" class="dash-nav-link flex items-center gap-3 px-4 py-3 text-sm font-medium text-text bg-primary/10 border-l-4 border-primary rounded-r transition-all">
+                    <i data-lucide="package" class="dash-icon w-5 h-5 text-primary"></i> Order History
+                </a>
+                <a href="#addresses" class="dash-nav-link flex items-center gap-3 px-4 py-3 text-sm font-medium text-muted hover:text-text hover:bg-muted/5 border-l-4 border-transparent transition-all">
+                    <i data-lucide="map-pin" class="dash-icon w-5 h-5"></i> Saved Addresses
+                </a>
+                <a href="#account-details" class="dash-nav-link flex items-center gap-3 px-4 py-3 text-sm font-medium text-muted hover:text-text hover:bg-muted/5 border-l-4 border-transparent transition-all">
+                    <i data-lucide="settings" class="dash-icon w-5 h-5"></i> Account Details
+                </a>
+            </nav>
+        </aside>
+
+        
+        <div class="lg:col-span-9 space-y-16">
+            
+            
+            <section id="orders" class="scroll-mt-32">
+                <div class="flex items-center justify-between mb-8">
+                    <h2 class="font-serif text-2xl text-text">Recent Orders</h2>
+                    {% if orders %}
+                    <a href="#" class="text-xs font-bold uppercase tracking-widest text-primary hover:text-text transition-colors">View All</a>
+                    {% endif %}
+                </div>
+
+                {% if orders %}
+                <div class="space-y-6">
+                    {% for order in orders|slice:":5" %}
+                    <div class="bg-surface border border-muted/20 rounded-lg overflow-hidden transition-shadow hover:shadow-md">
+                        <div class="bg-muted/5 p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-xs font-bold uppercase tracking-widest text-muted">
+                            <div class="flex flex-wrap gap-x-8 gap-y-2">
+                                <div>Order <span class="text-text">#{{ order.id }}</span></div>
+                                <div>Placed <span class="text-text">{{ order.created_at|date:"M d, Y" }}</span></div>
+                                <div>Total <span class="text-text">₱{{ order.total|floatformat:2 }}</span></div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="px-3 py-1 rounded-full text-[10px] 
+                                    {% if order.status == 'delivered' %}bg-accent/10 text-accent
+                                    {% elif order.status == 'cancelled' %}bg-danger/10 text-danger
+                                    {% else %}bg-primary/10 text-primary{% endif %}">
+                                    {{ order.status|upper }}
+                                </span>
+                                <a href="{% url 'orders:confirmation' order.id %}" class="text-primary hover:text-text transition-colors">View Details</a>
+                            </div>
+                        </div>
+                        <div class="p-4 flex items-center gap-4 overflow-x-auto">
+                            {% for item in order.line_items.all %}
+                            <div class="flex-shrink-0 w-16 h-20 bg-muted/5 rounded border border-muted/10 relative group">
+                                {% if item.product.images.all %}
+                                <img src="{{ item.product.images.all.0.image_file.url }}" class="w-full h-full object-cover rounded" loading="lazy">
+                                {% endif %}
+                                <div class="absolute inset-0 bg-text/80 text-surface text-[10px] opacity-0 group-hover:opacity-100 flex items-center justify-center p-1 text-center transition-opacity">
+                                    {{ item.product.name|truncatechars:15 }}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-16 bg-muted/5 rounded-lg border-2 border-dashed border-muted/20">
+                    <i data-lucide="shopping-bag" class="w-12 h-12 text-muted/30 mx-auto mb-4"></i>
+                    <p class="text-muted">You haven't placed any orders yet.</p>
+                    <a href="{% url 'store:shop' %}" class="inline-block mt-6 text-primary font-bold uppercase tracking-widest text-xs border-b border-primary pb-1">Start Shopping</a>
+                </div>
+                {% endif %}
+            </section>
+
+            
+            <section id="addresses" class="scroll-mt-32">
+                <div class="flex items-center justify-between mb-8">
+                    <h2 class="font-serif text-2xl text-text">Saved Addresses</h2>
+                    <a href="{% url 'accounts:address_add' %}" class="flex items-center gap-2 px-4 py-2 bg-primary text-surface text-xs font-bold uppercase tracking-widest rounded hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                        <i data-lucide="plus" class="w-4 h-4"></i> Add New
+                    </a>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {% for address in addresses %}
+                    <div class="bg-surface border border-muted/20 rounded-lg p-6 relative group transition-shadow hover:shadow-md">
+                        {% if address.is_default %}
+                        <span class="absolute top-4 right-4 bg-accent/10 text-accent text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded">Default</span>
+                        {% endif %}
+                        
+                        <h3 class="text-xs font-bold uppercase tracking-widest text-muted mb-4">{{ address.label }}</h3>
+                        <div class="text-sm text-text space-y-1">
+                            <p class="font-medium">{{ user.get_full_name }}</p>
+                            <p>{{ address.street }}</p>
+                            <p>{{ address.city }}, {{ address.province }}</p>
+                            <p>{{ address.zip_code }}</p>
+                            <p>{{ address.country }}</p>
+                        </div>
+
+                        <div class="mt-6 pt-6 border-t border-muted/10 flex items-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button class="text-xs font-bold uppercase tracking-widest text-muted hover:text-primary transition-colors focus:outline-none">Edit</button>
+                            <form action="{% url 'accounts:address_delete' address.id %}" method="POST">
+                                {% csrf_token %}
+                                <button type="submit" class="text-xs font-bold uppercase tracking-widest text-danger hover:text-text transition-colors focus:outline-none">Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-span-full text-center py-12 bg-muted/5 rounded-lg border-2 border-dashed border-muted/20">
+                        <i data-lucide="map-pin" class="w-12 h-12 text-muted/30 mx-auto mb-4"></i>
+                        <p class="text-muted">No saved addresses found.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+
+            
+            <section id="account-details" class="scroll-mt-32">
+                <div class="flex items-center justify-between mb-8">
+                    <h2 class="font-serif text-2xl text-text">Account Details</h2>
+                </div>
+
+                <div class="bg-surface border border-muted/20 rounded-lg p-6 md:p-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                        
+                        <div>
+                            <h3 class="text-xs font-bold uppercase tracking-widest text-muted mb-6 pb-2 border-b border-muted/10">Profile Information</h3>
+                            <div class="space-y-6">
+                                <div>
+                                    <label class="block text-[10px] font-bold text-muted uppercase tracking-widest mb-1">First Name</label>
+                                    <p class="text-text font-medium">{{ user.first_name|default:"Not provided" }}</p>
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-muted uppercase tracking-widest mb-1">Last Name</label>
+                                    <p class="text-text font-medium">{{ user.last_name|default:"Not provided" }}</p>
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-muted uppercase tracking-widest mb-1">Email Address</label>
+                                    <p class="text-text font-medium">{{ user.email }}</p>
+                                </div>
+                            </div>
+                            <div class="mt-8">
+                                <a href="{% url 'accounts:profile_edit' %}" class="inline-block text-xs font-bold uppercase tracking-widest text-primary hover:text-text transition-colors focus:outline-none border-b border-primary/30 hover:border-text pb-1">
+                                    Edit Profile
+                                </a>
+                            </div>
+                        </div>
+
+                        
+                        <div>
+                            <h3 class="text-xs font-bold uppercase tracking-widest text-muted mb-6 pb-2 border-b border-muted/10">Security</h3>
+                            <div class="space-y-6">
+                                <div>
+                                    <label class="block text-[10px] font-bold text-muted uppercase tracking-widest mb-1">Password</label>
+                                    <p class="text-text font-medium tracking-widest">••••••••••••</p>
+                                </div>
+                            </div>
+                            <div class="mt-8">
+                                <a href="{% url 'accounts:password_change' %}" class="inline-block text-xs font-bold uppercase tracking-widest text-primary hover:text-text transition-colors focus:outline-none border-b border-primary/30 hover:border-text pb-1">
+                                    Change Password
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const navLinks = document.querySelectorAll('.dash-nav-link');
+        const sections = document.querySelectorAll('section[id]');
+
+        const activeClasses = ['text-text', 'bg-primary/10', 'border-primary', 'rounded-r'];
+        const inactiveClasses = ['text-muted', 'border-transparent'];
+        const hoverClasses = ['hover:text-text', 'hover:bg-muted/5'];
+
+        function setActive(targetId) {
+            navLinks.forEach(link => {
+                const icon = link.querySelector('.dash-icon');
+                if (link.getAttribute('href') === `#${targetId}`) {
+                    link.classList.remove(...inactiveClasses, ...hoverClasses);
+                    link.classList.add(...activeClasses);
+                    if (icon) icon.classList.add('text-primary');
+                } else {
+                    link.classList.remove(...activeClasses);
+                    link.classList.add(...inactiveClasses, ...hoverClasses);
+                    if (icon) icon.classList.remove('text-primary');
+                }
+            });
+        }
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                const targetId = this.getAttribute('href').substring(1);
+                setActive(targetId);
+            });
+        });
+
+        const observer = new IntersectionObserver((entries) => {
+            let activeId = null;
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    activeId = entry.target.id;
+                }
+            });
+            if (activeId) {
+                setActive(activeId);
+            }
+        }, { rootMargin: '-20% 0px -60% 0px' });
+
+        sections.forEach(section => observer.observe(section));
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}Add New Address - Balay & Beyond{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto px-4 py-12 md:py-16">
+    <div class="bg-surface border border-muted/20 rounded-lg p-8 shadow-sm">
+        <h1 class="font-serif text-3xl text-text mb-8 text-center">Add New Address</h1>
+        
+        <form method="POST" action="{% url 'accounts:address_add' %}" class="space-y-5">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+            <div class="p-4 bg-danger/10 border border-danger text-danger text-sm rounded mb-4">
+                {{ form.non_field_errors }}
+            </div>
+            {% endif %}
+
+            
+            <div class="space-y-1">
+                <label for="{{ form.label.id_for_label }}" class="block text-sm font-medium text-text">Label (e.g., Home, Office)</label>
+                {{ form.label }}
+                {% if form.label.errors %}
+                    <p class="text-xs text-danger mt-1">{{ form.label.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            
+            <div class="space-y-1">
+                <label for="{{ form.street.id_for_label }}" class="block text-sm font-medium text-text">Street address</label>
+                {{ form.street }}
+                {% if form.street.errors %}
+                    <p class="text-xs text-danger mt-1">{{ form.street.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div class="space-y-1">
+                    <label for="{{ form.city.id_for_label }}" class="block text-sm font-medium text-text">City</label>
+                    {{ form.city }}
+                    {% if form.city.errors %}
+                        <p class="text-xs text-danger mt-1">{{ form.city.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                <div class="space-y-1">
+                    <label for="{{ form.province.id_for_label }}" class="block text-sm font-medium text-text">Province</label>
+                    {{ form.province }}
+                    {% if form.province.errors %}
+                        <p class="text-xs text-danger mt-1">{{ form.province.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div class="space-y-1">
+                    <label for="{{ form.zip_code.id_for_label }}" class="block text-sm font-medium text-text">ZIP Code</label>
+                    {{ form.zip_code }}
+                    {% if form.zip_code.errors %}
+                        <p class="text-xs text-danger mt-1">{{ form.zip_code.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                <div class="space-y-1">
+                    <label for="{{ form.country.id_for_label }}" class="block text-sm font-medium text-text">Country</label>
+                    {{ form.country }}
+                    {% if form.country.errors %}
+                        <p class="text-xs text-danger mt-1">{{ form.country.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            
+            <div class="flex items-center gap-3 pt-2 pb-4">
+                {{ form.is_default }}
+                <label for="{{ form.is_default.id_for_label }}" class="text-sm text-text cursor-pointer select-none">Set as default address</label>
+            </div>
+
+            
+            <div class="flex flex-col gap-3 pt-2 border-t border-muted/10">
+                <button type="submit" class="w-full h-12 bg-primary text-surface font-bold uppercase tracking-widest rounded hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                    Save Address
+                </button>
+                <a href="{% url 'accounts:dashboard' %}" class="w-full h-12 flex items-center justify-center text-muted font-medium hover:text-text transition-colors focus:outline-none focus:ring-1 focus:ring-primary rounded">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

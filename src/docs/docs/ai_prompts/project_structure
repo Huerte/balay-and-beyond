@@ -1,0 +1,388 @@
+=== PROJECT: HOUSEHOLD GOODS E-COMMERCE STORE (DEMO BUILD) ===
+
+SCOPE: Demo-ready storefront with a working mock payment flow that always
+results in a successful transaction. Built for presentation purposes.
+No real payment gateway integration required.
+
+
+--- TECH STACK ---
+
+Backend:
+  - Django 5.x (Python)
+  - SQLite3 (default Django DB — no setup, works fully offline)
+  - Django ORM (no external ORM needed)
+  - Django sessions for cart and auth state
+  - Django's built-in auth system (no third-party auth package)
+
+Frontend:
+  - Vanilla HTML, CSS, JavaScript (no frameworks)
+  - Tailwind CSS via CDN (play.tailwindcss.com CDN for zero-config setup)
+  - Lucide icons via CDN
+  - No npm, no build step, no bundler
+
+Payments:
+  - Mock payment handler — always returns success
+  - Simulated 1.5s processing delay via JavaScript timeout
+  - No real card validation, no external API calls
+
+Media:
+  - Static files served by Django (DEBUG=True for demo)
+  - Placeholder product images from picsum.photos or local /static/img/
+
+Deployment (demo only):
+  - python manage.py runserver
+  - SQLite3 file lives in project root (db.sqlite3)
+  - No Vercel, no Supabase, no cloud required
+
+
+--- DATABASE ---
+
+SQLite3 (db.sqlite3 — auto-created on first migrate)
+
+All models map to the same logical schema but through Django ORM:
+
+  User            — Django built-in AbstractUser (add role field)
+  Address         — user, label, street, city, province, zip, country, is_default
+  Category        — name, slug, parent (self-FK nullable), image, sort_order
+  Product         — name, slug, description, category, price, compare_price,
+                    stock, sku, is_published, created_at
+  ProductImage    — product, image_file (ImageField), alt, sort_order
+  Variant         — product, name, value, price_modifier, stock
+  Order           — user (nullable for guest), status, total,
+                    shipping_address (JSON snapshot), created_at
+  OrderItem       — order, product, variant, quantity, unit_price
+  Review          — product, user, rating, body, created_at
+  WishlistItem    — user, product
+
+
+--- DEMO SEEDING ---
+
+Run: python manage.py seed_demo
+
+Seed script creates:
+  - 6 top-level categories with subcategories
+  - 20-30 products spread across categories with placeholder images
+  - 1 admin user: admin@demo.com / admin1234
+  - 1 regular user: user@demo.com / user1234
+  - 5 sample orders in various statuses (pending, processing, delivered)
+
+
+--- PROJECT STRUCTURE ---
+
+household_store/              ← Django project root
+├── manage.py
+├── db.sqlite3                ← auto-generated, gitignored
+├── requirements.txt
+├── render.yaml               ← Render deployment config
+├── build.sh                  ← Render build script
+│
+├── config/                   ← Django project settings package
+│   ├── __init__.py
+│   ├── settings.py           ← reads ENV vars, falls back to SQLite locally
+│   ├── settings_render.py    ← Render-specific overrides (imported conditionally)
+│   ├── urls.py
+│   └── wsgi.py
+│
+├── store/                    ← main app (products, categories, homepage)
+│   ├── models.py
+│   ├── views.py
+│   ├── urls.py
+│   ├── admin.py
+│   ├── context_processors.py
+│   └── management/
+│       └── commands/
+│           └── seed_demo.py
+│
+├── orders/                   ← cart, checkout, order confirmation
+│   ├── models.py
+│   ├── views.py
+│   ├── urls.py
+│   └── cart.py
+│
+├── accounts/                 ← auth, profile, addresses
+│   ├── models.py
+│   ├── views.py
+│   ├── urls.py
+│   └── forms.py
+│
+├── payments/                 ← mock payment handler
+│   ├── views.py
+│   └── urls.py
+│
+├── templates/
+│   ├── base.html
+│   ├── store/
+│   │   ├── home.html
+│   │   ├── shop.html
+│   │   ├── category.html
+│   │   └── product_detail.html
+│   ├── orders/
+│   │   ├── cart.html
+│   │   ├── checkout.html
+│   │   └── confirmation.html
+│   ├── payments/
+│   │   └── processing.html
+│   └── accounts/
+│       ├── login.html
+│       ├── register.html
+│       └── dashboard.html
+│
+└── static/
+    ├── css/
+    │   └── custom.css
+    ├── js/
+    │   ├── cart.js
+    │   ├── checkout.js
+    │   └── search.js
+    └── img/
+        └── placeholder/
+
+
+--- PAYMENT MOCKUP FLOW (critical for demo) ---
+
+Goal: Clicking "Place Order" must always result in a success screen,
+with a believable loading state in between.
+
+Step-by-step:
+
+  1. User fills checkout form (contact, shipping, fake card fields)
+
+  2. On "Place Order" click (checkout.js):
+     - Validate required fields client-side
+     - Hide form, show full-screen processing overlay
+     - Overlay shows: spinner + "Processing your payment..." text
+     - After 1500ms timeout, submit a hidden form via JS to POST /payments/process/
+
+  3. POST /payments/process/ (payments/views.py):
+     - Read cart from session
+     - Create Order + OrderItems in DB with status = "confirmed"
+     - Clear cart session
+     - Redirect to /orders/confirmation/<order_id>/
+
+  4. Confirmation page shows:
+     - Green checkmark animation (CSS only)
+     - Order number
+     - Itemized summary
+     - Estimated delivery (hardcoded: 3-5 business days for demo)
+     - "Continue Shopping" CTA → /
+
+Fake card fields (checkout Step 3):
+  - Card number input (no Luhn validation — any 16-digit string passes)
+  - Expiry (MM/YY format, any future date passes)
+  - CVV (any 3-digit string passes)
+  - Name on card (any non-empty string passes)
+  - These fields are never sent to the backend — purely cosmetic for demo
+
+
+--- CHECKOUT STEPS (JS-driven, single page) ---
+
+All three steps live in checkout.html.
+JavaScript shows/hides step sections by toggling a .hidden class.
+No page reload between steps.
+
+  Step 1 — Contact & Shipping
+    - Email field (or auto-filled if logged in)
+    - Full name, address, city, province, ZIP, country (dropdown: PH default)
+    - "Continue to Shipping" button
+
+  Step 2 — Shipping Method
+    - 3 hardcoded options (Standard 3-5 days free, Express 1-2 days ₱150,
+      Same-day Metro only ₱300)
+    - Radio buttons, selection updates order summary total
+    - "Continue to Payment" button
+
+  Step 3 — Payment
+    - Fake card fields (described above)
+    - Order summary always visible (sticky sidebar on desktop)
+    - "Place Order" button → triggers mock payment flow
+
+Step indicator at the top: 1 → 2 → 3 with active/completed states via CSS classes.
+
+
+--- PAGES TO BUILD (demo scope) ---
+
+Public (required for demo):
+  /                     Homepage (hero, category grid, featured products)
+  /shop/                All products with filter + sort
+  /product/<slug>/      Product detail with image, price, add-to-cart
+  /cart/                Cart with line items and order summary
+  /checkout/            3-step checkout (single page, JS steps)
+  /payments/process/    POST-only view, no template (redirects immediately)
+  /orders/<id>/         Order confirmation page
+  /accounts/login/      Login page
+  /accounts/register/   Register page
+
+Admin (Django built-in /admin/ is sufficient for demo):
+  - Register all models with list_display, search_fields, list_filter
+  - Product admin: inline for ProductImage and Variant
+  - Order admin: show status, total, item count
+
+
+--- TAILWIND SETUP (CDN, zero config) ---
+
+In base.html <head>:
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary:   '#C8A97E',   // warm sand
+            surface:   '#FAF7F2',   // off-white
+            text:      '#2C2C2C',   // near-black
+            muted:     '#7A7067',   // warm gray
+            accent:    '#6B8C6A',   // sage green
+            danger:    '#B85C38',   // terracotta
+          }
+        }
+      }
+    }
+  </script>
+
+No purple anywhere. No blue-based neutrals.
+All UI uses the named palette above — no raw Tailwind color classes
+like bg-blue-500 or text-gray-700 outside of the config block.
+
+
+--- CODE CONDUCT RULES ---
+
+1. No comments explaining what the code obviously does by reading it.
+   Comments only for: non-obvious business rules, workarounds, or
+   anything a new developer would question without context.
+
+2. No purple in any part of the UI.
+   Palette must stay within the warm-neutral + earthy accent tokens above.
+
+3. No AI-pattern signatures:
+   - No generic variable names: result, data, temp, item, obj, val
+   - No "Here is the..." style inline docs or block comments
+   - No list-of-steps comments inside function bodies
+   - No over-prefixed class names (ProductModel, UserSerializer for every name)
+   - Catch exceptions with specific types, not bare except or except Exception as e
+     unless re-raised or logged with intent
+
+4. Components and templates named after domain role:
+   - cart.html not shopping_basket_page.html
+   - ProductCard not ItemDisplayWidget
+   - Event handlers named after intent: addToCart() not handleButtonClick()
+
+5. Django views must be class-based where the logic warrants it,
+   function-based where it is simpler. Do not force one pattern.
+
+
+--- RENDER DEPLOYMENT NOTES ---
+
+These notes exist so the codebase is Render-ready after the demo
+without requiring structural changes. Follow these conventions from
+the start so deployment is a one-command operation.
+
+
+  Settings split strategy:
+    config/settings.py handles local development with SQLite3 and
+    DEBUG=True as defaults. It reads from environment variables when
+    present so the same file works on Render without modification.
+
+    Required ENV vars on Render:
+      SECRET_KEY          — Django secret key (generate a new one for prod)
+      DEBUG               — set to False on Render
+      ALLOWED_HOSTS       — set to your .onrender.com subdomain
+      DATABASE_URL        — set this only if upgrading to PostgreSQL later
+                            (see database note below)
+
+  Database on Render:
+    SQLite3 works on Render but the filesystem is ephemeral on free
+    instances — db.sqlite3 resets on every deploy or restart.
+    For the demo this is acceptable since seed_demo runs in build.sh.
+    After the demo, swap to Render's managed PostgreSQL by adding
+    DATABASE_URL and using dj-database-url to parse it.
+
+    Add to requirements.txt now so the switch costs zero code changes:
+      dj-database-url
+      psycopg2-binary
+
+    In settings.py (write this from day one):
+
+      import dj_database_url, os
+
+      DATABASES = {
+          'default': dj_database_url.config(
+              default='sqlite:///db.sqlite3',
+              conn_max_age=600,
+          )
+      }
+
+    Locally, DATABASE_URL is unset so it falls back to SQLite3.
+    On Render, setting DATABASE_URL automatically switches to PostgreSQL.
+
+  Static files on Render:
+    Render does not serve Django static files through runserver.
+    Add whitenoise so Django serves its own static files in production
+    without needing a separate CDN or nginx config.
+
+    In requirements.txt:
+      whitenoise
+
+    In settings.py MIDDLEWARE (insert after SecurityMiddleware):
+      'whitenoise.middleware.WhiteNoiseMiddleware',
+
+    In settings.py:
+      STATIC_ROOT = BASE_DIR / 'staticfiles'
+      STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+  build.sh (runs on every Render deploy):
+
+    #!/usr/bin/env bash
+    set -o errexit
+    pip install -r requirements.txt
+    python manage.py collectstatic --no-input
+    python manage.py migrate
+    python manage.py seed_demo
+
+    Make this file executable before pushing: chmod +x build.sh
+
+  render.yaml (infrastructure as code, place in project root):
+
+    services:
+      - type: web
+        name: household-store
+        runtime: python
+        buildCommand: './build.sh'
+        startCommand: 'gunicorn config.wsgi:application'
+        envVars:
+          - key: SECRET_KEY
+            generateValue: true
+          - key: DEBUG
+            value: False
+          - key: ALLOWED_HOSTS
+            value: household-store.onrender.com
+          - key: PYTHON_VERSION
+            value: 3.12.0
+
+  Add to requirements.txt:
+    Django>=5.0
+    gunicorn
+    whitenoise
+    dj-database-url
+    psycopg2-binary
+
+  seed_demo idempotency:
+    seed_demo.py must be safe to run multiple times. Use
+    get_or_create for all seed records so re-deploys do not
+    create duplicate data.
+
+  ALLOWED_HOSTS reminder:
+    During local dev, ALLOWED_HOSTS = ['localhost', '127.0.0.1'].
+    On Render, set it via ENV to your actual subdomain.
+    In settings.py, read it as:
+
+      ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost').split(',')
+
+  Checklist before pushing to Render:
+    [ ] DEBUG=False in Render ENV vars
+    [ ] SECRET_KEY is a fresh generated value (not the dev key)
+    [ ] build.sh is executable (chmod +x build.sh)
+    [ ] collectstatic runs without errors locally
+    [ ] seed_demo uses get_or_create throughout
+    [ ] ALLOWED_HOSTS includes the .onrender.com domain
+    [ ] render.yaml is committed to the repo root

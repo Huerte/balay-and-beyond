@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}My Wishlist - Balay & Beyond{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+    
+    <div class="mb-12 border-b border-muted/20 pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+            <h1 class="font-serif text-4xl text-text leading-tight">My Wishlist</h1>
+            <p class="text-muted mt-2">Saved items you're keeping an eye on.</p>
+        </div>
+        <div class="text-sm font-medium text-muted uppercase tracking-widest">
+            {{ page_obj.paginator.count }} Items
+        </div>
+    </div>
+
+    {% if wishlist_items %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
+        {% for item in wishlist_items %}
+        <div class="group relative flex flex-col">
+            
+            <div class="relative w-full aspect-[4/5] bg-muted/5 rounded overflow-hidden mb-4">
+                <a href="{% url 'store:product_detail' item.product.slug %}" class="block w-full h-full">
+                    {% if item.product.images.all %}
+                    <img src="{{ item.product.images.all.0.url }}" alt="{{ item.product.name }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy">
+                    {% else %}
+                    <img src="https://picsum.photos/id/{{ item.product.id|default:1|add:10 }}/600/800" alt="{{ item.product.name }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy">
+                    {% endif %}
+                </a>
+                
+                <button type="button" data-wishlist-btn data-product-id="{{ item.product.id }}" class="absolute top-4 right-4 h-10 w-10 flex items-center justify-center bg-surface rounded-full shadow-sm text-danger hover:scale-110 transition-transform focus:outline-none focus:ring-2 focus:ring-danger" aria-label="Remove from wishlist">
+                    <i data-lucide="heart" class="w-5 h-5 fill-danger"></i>
+                </button>
+
+                {% if item.product.stock == 0 %}
+                <span class="absolute top-4 left-4 bg-surface/90 text-text text-xs font-bold uppercase tracking-wider px-3 py-1 rounded backdrop-blur-sm">Sold Out</span>
+                {% elif item.product.compare_price %}
+                <span class="absolute top-4 left-4 bg-danger text-surface text-xs font-bold uppercase tracking-wider px-3 py-1 rounded">Sale</span>
+                {% endif %}
+            </div>
+
+            
+            <div class="flex-grow flex flex-col">
+                <h3 class="font-serif text-lg text-text leading-snug mb-1">
+                    <a href="{% url 'store:product_detail' item.product.slug %}" class="hover:text-primary transition-colors focus:outline-none focus:ring-1 focus:ring-primary rounded px-1 -mx-1">
+                        {{ item.product.name }}
+                    </a>
+                </h3>
+                
+                <div class="mt-auto pt-2 flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        {% if item.product.compare_price %}
+                        <span class="text-sm text-muted line-through">₱{{ item.product.compare_price|floatformat:2 }}</span>
+                        <span class="text-danger font-medium">₱{{ item.product.price|floatformat:2 }}</span>
+                        {% else %}
+                        <span class="text-text font-medium">₱{{ item.product.price|floatformat:2 }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <button type="button" onclick="if(window.cartApi) cartApi.add('{{ item.product.id }}', 1)" class="w-full py-3 bg-surface border border-muted/30 text-text font-bold uppercase tracking-widest text-xs rounded hover:border-primary hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary" {% if item.product.stock == 0 %}disabled{% endif %}>
+                        {% if item.product.stock == 0 %}Out of Stock{% else %}Add to Cart{% endif %}
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    
+    {% if is_paginated %}
+    <div class="mt-16 flex justify-center border-t border-muted/10 pt-8">
+        <nav class="flex items-center gap-2" aria-label="Pagination">
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}" class="p-2 text-muted hover:text-primary transition-colors border border-transparent hover:border-muted/20 rounded focus:outline-none focus:ring-2 focus:ring-primary" aria-label="Previous page">
+                <i data-lucide="chevron-left" class="w-5 h-5"></i>
+            </a>
+            {% endif %}
+
+            {% for num in paginator.page_range %}
+                {% if page_obj.number == num %}
+                <span class="w-10 h-10 flex items-center justify-center border border-primary text-primary font-medium rounded">{{ num }}</span>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <a href="?page={{ num }}" class="w-10 h-10 flex items-center justify-center text-muted hover:text-primary hover:bg-muted/5 transition-colors rounded focus:outline-none focus:ring-2 focus:ring-primary">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" class="p-2 text-muted hover:text-primary transition-colors border border-transparent hover:border-muted/20 rounded focus:outline-none focus:ring-2 focus:ring-primary" aria-label="Next page">
+                <i data-lucide="chevron-right" class="w-5 h-5"></i>
+            </a>
+            {% endif %}
+        </nav>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="text-center py-24 bg-muted/5 rounded-lg border border-muted/10">
+        <i data-lucide="heart" class="w-12 h-12 text-muted/50 mx-auto mb-4"></i>
+        <h2 class="font-serif text-2xl text-text mb-2">Your wishlist is empty</h2>
+        <p class="text-muted mb-8 max-w-md mx-auto">Explore our collections and save your favorite items here to easily find them later.</p>
+        <a href="{% url 'store:shop' %}" class="inline-flex items-center justify-center h-12 px-8 bg-primary text-surface font-bold uppercase tracking-widest text-sm rounded hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+            Explore Shop
+        </a>
+    </div>
+    {% endif %}
+
+</div>
+
+<script>
+    // Remove the product card from DOM when removed from wishlist on this page
+    document.addEventListener('DOMContentLoaded', () => {
+        const wishlistButtons = document.querySelectorAll('.grid [data-wishlist-btn]');
+        wishlistButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Since clicking toggles, if it was clicked on the wishlist page, it means it was removed.
+                // We optimistically hide the card after a short delay for animation
+                const card = btn.closest('.group');
+                if (card) {
+                    setTimeout(() => {
+                        card.style.opacity = '0';
+                        card.style.transform = 'scale(0.95)';
+                        setTimeout(() => {
+                            card.remove();
+                            // Optional: reload if empty, but for now just removing is fine
+                        }, 300);
+                    }, 500); // Wait for the toast to show and API to resolve
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

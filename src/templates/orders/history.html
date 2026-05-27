@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Order History - Balay & Beyond{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+    
+    <div class="mb-12 border-b border-muted/20 pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+            <h1 class="font-serif text-4xl text-text leading-tight">Order History</h1>
+            <p class="text-muted mt-2">View and track your past orders.</p>
+        </div>
+        <div class="text-sm font-medium text-muted uppercase tracking-widest">
+            {{ page_obj.paginator.count|default:0 }} Orders
+        </div>
+    </div>
+
+    {% if orders %}
+    <div class="bg-surface rounded-lg border border-muted/20 overflow-hidden shadow-sm">
+        <div class="overflow-x-auto custom-scrollbar">
+            <table class="w-full text-left whitespace-nowrap">
+                <thead>
+                    <tr class="bg-muted/5 border-b border-muted/20">
+                        <th scope="col" class="px-6 py-4 text-xs font-bold text-text uppercase tracking-widest">Order ID</th>
+                        <th scope="col" class="px-6 py-4 text-xs font-bold text-text uppercase tracking-widest">Date Placed</th>
+                        <th scope="col" class="px-6 py-4 text-xs font-bold text-text uppercase tracking-widest">Status</th>
+                        <th scope="col" class="px-6 py-4 text-xs font-bold text-text uppercase tracking-widest">Total</th>
+                        <th scope="col" class="px-6 py-4 text-xs font-bold text-text uppercase tracking-widest text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-muted/10">
+                    {% for order in orders %}
+                    <tr class="hover:bg-muted/5 transition-colors">
+                        <td class="px-6 py-5 text-sm font-medium text-text">
+                            #{{ order.id|stringformat:"06d" }}
+                        </td>
+                        <td class="px-6 py-5 text-sm text-muted">
+                            {{ order.created_at|date:"M d, Y" }}
+                        </td>
+                        <td class="px-6 py-5">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium uppercase tracking-widest
+                                {% if order.status == 'pending' %}bg-accent/10 text-accent
+                                {% elif order.status == 'processing' %}bg-primary/10 text-primary
+                                {% elif order.status == 'shipped' %}bg-success/10 text-success
+                                {% elif order.status == 'delivered' %}bg-success/10 text-success
+                                {% elif order.status == 'cancelled' %}bg-danger/10 text-danger
+                                {% else %}bg-muted/10 text-muted{% endif %}">
+                                {{ order.get_status_display|default:order.status }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-5 text-sm font-medium text-text">
+                            ₱{{ order.total|floatformat:2 }}
+                        </td>
+                        <td class="px-6 py-5 text-right text-sm">
+                            <a href="{% url 'orders:confirmation' order.id %}" class="text-primary hover:text-text font-medium transition-colors focus:outline-none focus:underline">
+                                View Details
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    
+    {% if is_paginated %}
+    <div class="mt-12 flex justify-center">
+        <nav class="flex items-center gap-2" aria-label="Pagination">
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}" class="p-2 text-muted hover:text-primary transition-colors border border-transparent hover:border-muted/20 rounded focus:outline-none focus:ring-2 focus:ring-primary" aria-label="Previous page">
+                <i data-lucide="chevron-left" class="w-5 h-5"></i>
+            </a>
+            {% endif %}
+
+            {% for num in paginator.page_range %}
+                {% if page_obj.number == num %}
+                <span class="w-10 h-10 flex items-center justify-center border border-primary text-primary font-medium rounded">{{ num }}</span>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <a href="?page={{ num }}" class="w-10 h-10 flex items-center justify-center text-muted hover:text-primary hover:bg-muted/5 transition-colors rounded focus:outline-none focus:ring-2 focus:ring-primary">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" class="p-2 text-muted hover:text-primary transition-colors border border-transparent hover:border-muted/20 rounded focus:outline-none focus:ring-2 focus:ring-primary" aria-label="Next page">
+                <i data-lucide="chevron-right" class="w-5 h-5"></i>
+            </a>
+            {% endif %}
+        </nav>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="text-center py-24 bg-muted/5 rounded-lg border border-muted/10">
+        <i data-lucide="package" class="w-12 h-12 text-muted/50 mx-auto mb-4"></i>
+        <h2 class="font-serif text-2xl text-text mb-2">No orders yet</h2>
+        <p class="text-muted mb-8 max-w-md mx-auto">You haven't placed any orders. Discover something new and start building your collection.</p>
+        <a href="{% url 'store:shop' %}" class="inline-flex items-center justify-center h-12 px-8 bg-primary text-surface font-bold uppercase tracking-widest text-sm rounded hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+            Explore Shop
+        </a>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

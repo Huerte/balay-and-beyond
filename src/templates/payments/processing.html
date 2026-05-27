@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Confirming Your Order...{% endblock %}
+
+{% block content %}
+<div class="min-h-[70vh] flex flex-col items-center justify-center text-center px-6">
+    
+    <div class="relative w-24 h-24 mb-12">
+        <div class="absolute inset-0 border-8 border-muted/10 rounded-full"></div>
+        <div class="absolute inset-0 border-8 border-primary rounded-full border-t-transparent animate-spin"></div>
+    </div>
+    
+    
+    <div class="space-y-4 max-w-md mx-auto">
+        <h1 class="font-serif text-4xl text-text leading-tight">
+            Processing your payment
+        </h1>
+        <p class="text-muted text-lg leading-relaxed">
+            Please hold on for a moment. We are securely finalizing your order and preparing your confirmation.
+        </p>
+    </div>
+
+    
+    <div class="mt-16 pt-8 border-t border-muted/10 w-full max-w-xs flex flex-col items-center gap-6">
+        <div class="flex items-center gap-3 text-accent">
+            <i data-lucide="shield-check" class="w-6 h-6"></i>
+            <span class="text-[10px] font-bold uppercase tracking-widest">Secure 256-bit Encryption</span>
+        </div>
+        
+        <div class="flex gap-4 opacity-30 grayscale">
+            <div class="w-10 h-6 bg-text rounded-sm"></div> 
+            <div class="w-10 h-6 bg-text rounded-sm"></div> 
+            <div class="w-10 h-6 bg-text rounded-sm"></div> 
+        </div>
+    </div>
+
+    
+    <p class="mt-12 text-[10px] text-muted/60 uppercase font-bold tracking-widest">
+        Do not refresh this page or click the back button
+    </p>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // This template acts as a standalone visual fallback for the processing state.
+    // In the current JS-driven checkout flow, the overlay is used, 
+    // but this page ensures a premium branded experience if a direct 
+    // transition to a processing URL is implemented.
+    document.addEventListener('DOMContentLoaded', function() {
+        lucide.createIcons();
+    });
+</script>
+{% endblock %}

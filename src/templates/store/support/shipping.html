@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Shipping & Returns - Balay & Beyond{% endblock %}
+
+{% block content %}
+
+<header class="bg-surface border-b border-muted/10">
+    <div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 pt-8 pb-4">
+        <nav class="flex text-xs uppercase tracking-widest font-medium" aria-label="Breadcrumb">
+            <ol class="flex items-center space-x-2">
+                <li><a href="{% url 'store:home' %}" class="text-muted hover:text-primary transition-colors focus:outline-none focus:ring-1 focus:ring-primary rounded px-1">Home</a></li>
+                <li class="text-muted/40">/</li>
+                <li class="text-text">Shipping & Returns</li>
+            </ol>
+        </nav>
+    </div>
+    <div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-16">
+        <div class="max-w-3xl">
+            <h1 class="font-serif text-5xl md:text-6xl text-text leading-tight">Shipping & Returns</h1>
+            <p class="mt-4 text-muted text-sm">Everything you need to know about delivery and returns.</p>
+        </div>
+    </div>
+</header>
+
+<div class="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-20">
+    <div class="max-w-3xl space-y-14">
+
+        <section aria-labelledby="shipping-info">
+            <h2 id="shipping-info" class="font-serif text-2xl text-text mb-4">Shipping Information</h2>
+            <p class="text-muted text-[15px] leading-relaxed mb-4">
+                We currently ship across the Philippines. Orders are processed within 1-2 business days.
+            </p>
+            <ul class="space-y-3 text-muted text-[15px] leading-relaxed list-none pl-0">
+                <li class="flex gap-3 items-start"><i data-lucide="circle-dot" class="w-4 h-4 text-primary mt-1 flex-shrink-0"></i><span><strong class="text-text font-medium">Metro Manila:</strong> 2-3 business days (₱150 standard flat rate)</span></li>
+                <li class="flex gap-3 items-start"><i data-lucide="circle-dot" class="w-4 h-4 text-primary mt-1 flex-shrink-0"></i><span><strong class="text-text font-medium">Provincial:</strong> 5-7 business days (₱300 standard flat rate)</span></li>
+            </ul>
+            <p class="text-muted text-[15px] leading-relaxed mt-4 italic">
+                *Free shipping on orders over ₱5,000.
+            </p>
+        </section>
+
+        <section aria-labelledby="returns-info">
+            <h2 id="returns-info" class="font-serif text-2xl text-text mb-4">Returns & Exchanges</h2>
+            <p class="text-muted text-[15px] leading-relaxed mb-4">
+                We accept returns within 30 days of delivery. Items must be in their original condition and packaging.
+            </p>
+            <p class="text-muted text-[15px] leading-relaxed">
+                To initiate a return, please <a href="{% url 'store:contact' %}" class="text-primary hover:underline underline-offset-4">contact our support team</a> with your order number. Please note that return shipping costs are the responsibility of the customer unless the item arrived damaged or defective.
+            </p>
+        </section>
+
+    </div>
+</div>
+
+{% endblock %}

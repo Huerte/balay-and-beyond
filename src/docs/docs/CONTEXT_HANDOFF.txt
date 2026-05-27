@@ -1,0 +1,159 @@
+================================================================================
+PROJECT: Balay & Beyond — Django E-Commerce
+PATH: C:\Programs\WebDev\WebDev Projects\FrankProject
+STACK: Django 5.x, SQLite (local), Tailwind CDN, Vanilla JS modules
+LAST UPDATED: 2026-05-12 (Session: f121d5e7-c9ac-431a-b03a-87ba3ca78b16)
+================================================================================
+
+--- CUSTOM USER MODEL ---
+Model: accounts.User (inherits AbstractUser)
+  - USERNAME_FIELD = 'email' (email is unique, NOT username)
+  - username is auto-generated in CustomUserCreationForm.save() from email prefix + random 4-digit suffix if taken
+  - Role field: 'customer' | 'admin'
+AUTH_USER_MODEL = 'accounts.User'  (set in config/settings.py)
+
+--- APP STRUCTURE ---
+config/          settings.py, urls.py, wsgi.py
+accounts/        User, Address models | CustomUserCreationForm, AddressForm, UserEditForm | services.py
+store/           Category, Product, ProductImage, Variant, Review, WishlistItem | services.py | context_processors.py
+orders/          Order, OrderItem | CartService (session-based) | CheckoutForm in forms.py | services.create_order_from_cart()
+payments/        ProcessPaymentView | SHIPPING_RATES dict (server-side, not from POST)
+templates/       base.html, store/{home,shop,category,product_detail,wishlist}.html
+                 orders/{cart,checkout,confirmation,history}.html
+                 accounts/{dashboard,profile_edit,password_change,address_form}.html
+                 store/support/{contact,faq,care_guide,shipping_returns}.html
+static/js/       api.js (StoreAPI + window.cartApi), cart.js (CartUI), checkout.js (CheckoutController), wishlist.js
+
+--- KEY MODELS ---
+ProductImage: fields = (product FK, url URLField, alt, sort_order)  — NOT ImageField, NOT image_file
+WishlistItem: fields = (user FK, product FK, added_at)              — timestamp field is 'added_at' NOT 'created_at'
+Order: fields include updated_at (auto_now=True), shipping_cost DecimalField, shipping_address JSONField
+OrderItem: fields include line_total DecimalField (required, must be passed to .create())
+
+--- SHIPPING RATES (server-side only, payments/views.py) ---
+SHIPPING_RATES = {
+    'standard': Decimal('0.00'),
+    'express':  Decimal('150.00'),
+    'sameday':  Decimal('300.00'),
+}
+Method key detected via substring match on the POST 'shipping_method' string value.
+
+--- JS GLOBALS (loaded in base.html via {% static %}) ---
+window.StoreAPI        — full API object (StoreAPI.addToCart, removeFromCart, updateCartQuantity)
+window.cartApi.add()   — shortcut: cartApi.add(productId, quantity, variantId=null)
+window.CartUI          — cart.js: CartUI.adjustQuantity(key, delta), CartUI.deleteItem(key)
+window.CheckoutController — checkout.js: .step(n), .shipping(fee, label), .pay()
+
+--- CONTEXT PROCESSORS ---
+store.context_processors.global_categories  (registered in settings.py TEMPLATES)
+  → injects 'categories' (root-level Category queryset) into ALL template contexts
+  → used by base.html navbar and footer loops
+  → ALSO injects 'cart_count' and 'wishlist_count' for badge display in base.html
+
+--- SETTINGS NOTES ---
+- python-dotenv is used: load_dotenv() called at top of settings.py
+- .env file: DATABASE_URL must be COMMENTED OUT for SQLite local dev (empty string breaks dj_database_url)
+- django_extensions is OPTIONAL: wrapped in try/except ImportError in INSTALLED_APPS
+- SUPPORT_EMAIL = 'support@balaybeyond.com' defined in settings.py
+- LOGIN_URL = 'accounts:login'
+
+--- ADMIN FILES (corrected field names) ---
+accounts/admin.py  → registers 'User' (NOT CustomUser)
+store/admin.py     → WishlistAdmin uses 'added_at' (NOT 'created_at')
+                   → ReviewAdmin search_fields uses 'body' (NOT 'comment')
+
+--- SERVICES LAYER ---
+accounts/services.py:
+  get_user_orders(user)     → Order.objects.filter(user=user).order_by('-created_at')
+  get_user_addresses(user)  → user.addresses.all()
+
+store/services.py:
+  get_root_categories()     → Category.objects.filter(parent__isnull=True)
+  get_product_by_slug(slug) → prefetches images, variants, reviews__user
+  get_published_products()  → prefetches images
+  get_featured_products(limit=4)
+
+orders/services.py — CartService:
+  __init__: session_cart = self.session.get('cart')  (renamed from 'cart' for clarity)
+  get_items() → returns list of dicts: {product, variant, quantity, unit_price, line_total, key}
+  create_order_from_cart() → MUST pass line_total to OrderItem.objects.create()
+
+--- SEED COMMAND ---
+store/management/commands/seed_demo.py
+  - Reads products.json from project root
+  - Creates admin@gmail.com (admin1234) and user@gmail.com (user1234)
+  - ProductImage created with: url=item_data.get('image')  (NOT image_file=)
+  - Order guard: if Order.objects.filter(user=demo_user).count() < 5: [create orders]
+  - order_statuses list defined OUTSIDE the if-block so it's always in scope for stdout.write
+
+--- URL NAMESPACES ---
+store:home, store:shop, store:category <slug>, store:product_detail <slug>, store:wishlist
+orders:cart, orders:checkout, orders:confirmation <order_id>, orders:history
+accounts:login, accounts:register, accounts:logout, accounts:dashboard
+accounts:address_add, accounts:address_delete <pk>
+accounts:profile_edit, accounts:password_change
+payments:process  (POST only)
+
+--- ACCOUNTS FORMS ---
+CustomUserCreationForm  → fields: email, first_name, last_name (username auto-generated)
+AddressForm             → fields: label, street, city, province, zip_code, country, is_default
+                          All inputs have Tailwind CSS widget attrs injected (px-4 py-2 border rounded etc.)
+UserEditForm            → fields: first_name, last_name ONLY (email is intentionally excluded)
+                          All inputs have Tailwind CSS widget attrs injected
+
+--- ACCOUNTS VIEWS ---
+LoginView            → template: accounts/login.html
+LogoutView           → next_page: store:home
+RegisterView         → success_url: store:home, auto-logs in on success
+DashboardView        → LoginRequiredMixin, injects 'orders' and 'addresses' in context
+AddAddressView       → GET: renders address_form.html | POST: saves to DB, redirects dashboard
+DeleteAddressView    → POST only, checks address.user == request.user
+ProfileEditView      → LoginRequiredMixin + UpdateView, get_object() returns self.request.user
+                       success_url: accounts:dashboard
+PasswordChangeView   → Django built-in auth_views.PasswordChangeView
+                       template: accounts/password_change.html | success_url: accounts:dashboard
+
+--- TEMPLATE PATTERNS ---
+Images:   {{ image.url }}  (ProductImage.url is a URLField, direct string)
+Currency: {{ value|floatformat:2 }}
+Cart JS:  onclick="cartApi.add({{ product.id }}, 1)"
+Checkout: data-base="{{ cart_total|floatformat:2 }}"  (used by checkout.js to parse base price)
+Subtotal on confirmation: passed as 'order_subtotal' = order.total - order.shipping_cost from view context
+Load static: templates using {% static %} MUST include {% load static %} at the top (after extends)
+
+--- BADGE BEHAVIOR (base.html) ---
+Cart badge:    id="cart-count-badge"    — hidden via CSS class 'hidden' when count is 0
+Wishlist badge: id="wishlist-count-badge" — hidden via CSS class 'hidden' when count is 0
+cart.js refreshCartBadge(n) → adds/removes 'hidden' class based on count > 0
+base.html:  badges use {% if not cart_count or cart_count == 0 %}hidden{% endif %} on initial render
+
+--- VISITOR ACCESS CONTROL (base.html) ---
+Wishlist heart icon in navbar:     wrapped in {% if user.is_authenticated %} — hidden from guests
+Footer Account section:
+  - Logged in:  My Dashboard, Order History, Wishlist links are shown
+  - Guest:      Login and Register links shown instead (Dashboard/History/Wishlist hidden)
+  - Always visible: Shopping Cart link
+
+--- PAGE DESIGN CONSISTENCY ---
+All list pages (Cart, Wishlist, Order History) share the same header pattern:
+  <div class="mb-12 border-b border-muted/20 pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
+    <div>
+      <h1 class="font-serif text-4xl text-text leading-tight">...</h1>
+      <p class="text-muted mt-2">...</p>
+    </div>
+    <div class="text-sm font-medium text-muted uppercase tracking-widest">N Items/Orders</div>
+  </div>
+All empty states use: bg-muted/5 rounded-lg border border-muted/10 with Lucide icon + CTA button
+
+--- MIGRATION STATE (clean as of this session) ---
+All apps have initial migrations applied to a fresh db.sqlite3
+Migration sequence: contenttypes → auth → accounts → admin → store → orders → sessions
+The orphaned orders/0002_order_updated_at.py was deleted (updated_at is already in the initial model)
+
+--- REMAINING NON-BLOCKING KNOWN GAPS ---
+1. Username collision retry in CustomUserCreationForm is single-attempt (not a loop)
+2. Product images are still seeded with picsum.photos placeholder URLs; no admin upload flow
+3. Search bar in navbar is UI-only; no backend search endpoint wired up yet
+4. "Edit" button on address cards in dashboard is UI-only; no EditAddressView exists yet
+5. Dashboard sidebar nav links do not update active state on scroll (no scroll-spy JS)
+================================================================================
