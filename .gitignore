@@ -11,4 +11,4 @@ staticfiles/
 Thumbs.db
 skill.md
 src/db.sqlite3
-src/media/
+media/
