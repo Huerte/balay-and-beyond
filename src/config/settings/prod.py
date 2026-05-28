@@ -14,24 +14,30 @@ CSRF_TRUSTED_ORIGINS = [f'https://{host}' for host in ALLOWED_HOSTS if host]
 
 from whitenoise.storage import CompressedManifestStaticFilesStorage
 
+import os
+
 class CustomWhiteNoiseStorage(CompressedManifestStaticFilesStorage):
     manifest_strict = False
+
+    def compress_files(self, paths):
+        # django-cloudinary-storage registers static files that don't physically
+        # exist on Render's filesystem. Pre-filter them here before they ever
+        # reach the thread pool, which is the only reliable intercept point.
+        existing = []
+        for path in paths:
+            try:
+                if os.path.isfile(self.path(path)):
+                    existing.append(path)
+            except Exception:
+                pass
+        yield from super().compress_files(existing)
 
     def post_process(self, *args, **kwargs):
         for name, hashed_name, processed in super().post_process(*args, **kwargs):
             if isinstance(processed, Exception):
-                # Skip missing source map errors from vendor files
                 yield name, None, True
             else:
                 yield name, hashed_name, processed
-
-    def _compress_path(self, path):
-        # django-cloudinary-storage registers static files that don't physically exist
-        # on Render's filesystem. Skip them instead of crashing during compression.
-        try:
-            return list(super()._compress_path(path))
-        except FileNotFoundError:
-            return []
 
 STORAGES["staticfiles"] = {
     "BACKEND": "config.settings.prod.CustomWhiteNoiseStorage",
