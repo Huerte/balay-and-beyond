@@ -65,8 +65,9 @@ class UpdateCartView(View):
         
         line_total = 0
         for item in cart.get_items():
-            item_variant_id = str(item['variant'].id) if item['variant'] else None
-            if str(item['product'].id) == str(product_id) and item_variant_id == str(variant_id):
+            item_variant_id = str(item['variant'].id) if item['variant'] else ""
+            req_variant_id = str(variant_id) if variant_id else ""
+            if str(item['product'].id) == str(product_id) and item_variant_id == req_variant_id:
                 line_total = item['line_total']
                 break
                 
