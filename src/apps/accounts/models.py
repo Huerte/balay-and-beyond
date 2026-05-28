@@ -9,6 +9,7 @@ class User(AbstractUser):
         ('admin', 'Admin'),
     ]
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='customer')
+    has_unread_orders = models.BooleanField(default=False, help_text="User has unread order updates")
 
     
     email = models.EmailField(_('email address'), unique=True)

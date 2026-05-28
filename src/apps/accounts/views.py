@@ -33,9 +33,50 @@ class DashboardView(LoginRequiredMixin, TemplateView):
     template_name = 'accounts/dashboard.html'
 
     def get_context_data(self, **kwargs):
+        from apps.orders.models import Order
+        from django.db.models import Case, When, Value, IntegerField
+
         context = super().get_context_data(**kwargs)
-        context['orders'] = services.get_user_orders(self.request.user)
+        
+        # Priority tiers:
+        # 0 — unread update on any order (temporary override)
+        # 1 — new orders: pending, confirmed
+        # 2 — in-progress: processing, shipped
+        # 3 — recently delivered
+        # 4 — cancelled / everything else
+        # Within each tier, most recently updated appears first.
+        orders = services.get_user_orders(self.request.user).annotate(
+            priority=Case(
+                When(has_unread_update=True, then=Value(0)),
+                When(status__in=['pending', 'confirmed'], then=Value(1)),
+                When(status__in=['processing', 'shipped'], then=Value(2)),
+                When(status='delivered', then=Value(3)),
+                default=Value(4),
+                output_field=IntegerField(),
+            )
+        ).order_by('priority', '-updated_at')
+        
+        context['orders'] = orders[:2]
         context['addresses'] = services.get_user_addresses(self.request.user)
+
+        # Snapshot all unread order IDs to drive both the highlights and the "View All" dot.
+        # Do NOT clear flags here — the History page is responsible for clearing once the
+        # user has actually seen every highlighted container.
+        all_updated_ids = list(
+            Order.objects.filter(user=self.request.user, has_unread_update=True)
+            .values_list('id', flat=True)
+        )
+        shown_order_ids = [o.id for o in orders[:2]]
+        extra_update_count = len([uid for uid in all_updated_ids if uid not in shown_order_ids])
+
+        context['updated_order_ids'] = all_updated_ids
+        context['extra_update_count'] = extra_update_count
+
+        # Only dismiss the nav dot when every update fits inside the visible 2 slots
+        if extra_update_count == 0 and self.request.user.has_unread_orders:
+            self.request.user.has_unread_orders = False
+            self.request.user.save(update_fields=['has_unread_orders'])
+
         return context
 
 

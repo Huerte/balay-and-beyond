@@ -164,34 +164,78 @@ class ProductDetailView(DetailView):
         return services.get_product_by_slug(self.kwargs['slug'])
 
     def get_context_data(self, **kwargs):
+        from apps.orders.models import OrderItem
         context = super().get_context_data(**kwargs)
         product = self.object
         context['product_images'] = product.images.all()
         context['related_products'] = services.get_published_products().filter(
             category=product.category
         ).exclude(pk=product.pk)[:4]
-        
+
         if self.request.user.is_authenticated:
-            context['in_wishlist'] = WishlistItem.objects.filter(user=self.request.user, product=product).exists()
+            context['in_wishlist'] = WishlistItem.objects.filter(
+                user=self.request.user, product=product
+            ).exists()
+
+            # Only users with a delivered order containing this product may review.
+            has_purchased = OrderItem.objects.filter(
+                order__user=self.request.user,
+                order__status='delivered',
+                product=product,
+            ).exists()
+            user_review = product.reviews.filter(user=self.request.user).first()
+            has_reviewed = user_review is not None
+
+            context['can_review'] = has_purchased
+            context['has_reviewed'] = has_reviewed
+            context['user_review'] = user_review
+            context['has_purchased'] = has_purchased
         else:
             context['in_wishlist'] = False
-            
+            context['can_review'] = False
+            context['has_reviewed'] = False
+            context['has_purchased'] = False
+
         return context
 
 
 class SubmitReviewView(LoginRequiredMixin, View):
     def post(self, request, slug):
+        from apps.orders.models import OrderItem
+        from django.http import HttpResponseForbidden
+
         product = services.get_product_by_slug(slug)
+
+        # Server-side guard: must have a delivered order with this product.
+        has_purchased = OrderItem.objects.filter(
+            order__user=request.user,
+            order__status='delivered',
+            product=product,
+        ).exists()
+        if not has_purchased:
+            return HttpResponseForbidden('You can only review products you have purchased.')
+
         rating = request.POST.get('rating')
         body = request.POST.get('body', '')
-        
+        is_anonymous = request.POST.get('is_anonymous') == 'on'
+
         if rating and rating.isdigit() and 1 <= int(rating) <= 5:
             Review.objects.update_or_create(
                 product=product,
                 user=request.user,
-                defaults={'rating': int(rating), 'body': body}
+                defaults={
+                    'rating': int(rating),
+                    'body': body,
+                    'is_anonymous': is_anonymous
+                },
             )
-            
+        else:
+            from django.contrib import messages
+            messages.error(request, 'Please select a valid rating between 1 and 5 stars.')
+
+        next_url = request.META.get('HTTP_REFERER')
+        if next_url:
+            return redirect(next_url)
         return redirect('store:product_detail', slug=slug)
 
 

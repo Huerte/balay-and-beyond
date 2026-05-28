@@ -101,21 +101,63 @@ class OrderConfirmationView(LoginRequiredMixin, DetailView):
     context_object_name = 'order'
     
     def get_object(self):
-        return get_object_or_404(Order, id=self.kwargs['order_id'], user=self.request.user)
+        from django.db.models import Prefetch
+        from apps.store.models import Review
+        return get_object_or_404(
+            Order.objects.prefetch_related(
+                Prefetch('line_items__product__reviews', queryset=Review.objects.filter(user=self.request.user), to_attr='user_reviews')
+            ), 
+            id=self.kwargs['order_id'], 
+            user=self.request.user
+        )
         
     def get_context_data(self, **kwargs):
         from django.conf import settings
         context = super().get_context_data(**kwargs)
         order = self.object
+
+        # Detect whether the user just completed payment or is viewing an existing order
+        context['is_new_order'] = self.request.GET.get('new') == '1'
         context['order_subtotal'] = order.total - order.shipping_cost
         context['support_email'] = getattr(settings, 'SUPPORT_EMAIL', 'support@balaybeyond.com')
+
+        # Clear the notification highlight for this order now that the user has seen it
+        if order.has_unread_update:
+            order.has_unread_update = False
+            order.save(update_fields=['has_unread_update'])
+            # Also clear the nav dot if no other orders are still flagged
+            remaining = order.user.orders.filter(has_unread_update=True).exists()
+            if not remaining and order.user.has_unread_orders:
+                order.user.has_unread_orders = False
+                order.user.save(update_fields=['has_unread_orders'])
+
         return context
 
 
-class OrderHistoryView(LoginRequiredMixin, ListView):
+class OrderHistoryView(LoginRequiredMixin, TemplateView):
     template_name = 'orders/history.html'
-    context_object_name = 'orders'
-    paginate_by = 10
     
-    def get_queryset(self):
-        return Order.objects.filter(user=self.request.user).order_by('-created_at')
+    def get_context_data(self, **kwargs):
+        from django.db.models import Prefetch
+        from apps.store.models import Review
+        
+        # Snapshot IDs FIRST, then reset — queryset must be evaluated before update()
+        updated_order_ids = list(
+            Order.objects.filter(user=self.request.user, has_unread_update=True)
+            .values_list('id', flat=True)
+        )
+
+        # Reset per-order flags now that we have the IDs
+        if updated_order_ids:
+            Order.objects.filter(id__in=updated_order_ids).update(has_unread_update=False)
+
+        context = super().get_context_data(**kwargs)
+        all_orders = Order.objects.filter(user=self.request.user).order_by('-created_at').prefetch_related(
+            'line_items__product',
+            Prefetch('line_items__product__reviews', queryset=Review.objects.filter(user=self.request.user), to_attr='user_reviews')
+        )
+        
+        context['in_progress_orders'] = all_orders.exclude(status='delivered')
+        context['delivered_orders'] = all_orders.filter(status='delivered')
+        context['updated_order_ids'] = updated_order_ids
+        return context

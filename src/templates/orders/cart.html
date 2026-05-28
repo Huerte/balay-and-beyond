@@ -91,34 +91,41 @@
         </div>
 
         
-        <aside class="w-full lg:w-96">
-            <div class="sticky top-28 bg-surface border border-muted/20 rounded-lg p-8 space-y-6 shadow-sm">
-                <h2 class="font-serif text-2xl text-text">Order Summary</h2>
+        <aside class="w-full lg:w-96 flex-shrink-0">
+            <div class="sticky top-28 bg-muted/5 backdrop-blur-xl border border-muted/10 rounded-2xl p-8 space-y-8 shadow-lg">
+                <div>
+                    <h2 class="font-serif text-2xl text-text mb-1">Order Summary</h2>
+                    <p class="text-xs text-muted">Discounts and shipping applied at checkout.</p>
+                </div>
                 
-                <div class="space-y-4 pt-4">
-                    <div class="flex justify-between text-sm">
-                        <span class="text-muted">Subtotal</span>
-                        <span id="cart-subtotal" class="text-text font-medium">₱{{ cart_total|floatformat:2 }}</span>
+                <div class="space-y-5">
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-muted font-medium">Subtotal</span>
+                        <span id="cart-subtotal" class="text-text font-bold">₱{{ cart_total|floatformat:2 }}</span>
                     </div>
-                    <div class="flex justify-between text-sm">
-                        <span class="text-muted">Shipping</span>
-                        <span class="text-accent font-bold uppercase tracking-widest text-[10px]">Calculated at checkout</span>
+                    <div class="flex justify-between items-start text-sm">
+                        <span class="text-muted font-medium">Shipping</span>
+                        <span class="text-xs text-muted/70 text-right uppercase tracking-wider font-bold">Calculated<br>at checkout</span>
                     </div>
-                    <div class="pt-4 border-t border-muted/10 flex justify-between items-baseline">
-                        <span class="text-lg font-serif text-text">Total</span>
-                        <span id="cart-total" class="text-2xl font-serif text-text">₱{{ cart_total|floatformat:2 }}</span>
+                    
+                    <div class="pt-6 border-t border-muted/10">
+                        <div class="flex justify-between items-end">
+                            <span class="text-lg font-medium text-text">Total</span>
+                            <span id="cart-total" class="text-3xl font-serif text-text leading-none">₱{{ cart_total|floatformat:2 }}</span>
+                        </div>
                     </div>
                 </div>
 
-                <div class="pt-6">
-                    <a href="{% url 'orders:checkout' %}" class="block w-full py-4 bg-primary text-surface font-bold text-center uppercase tracking-widest rounded hover:bg-muted transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
-                        Checkout
+                <div class="pt-2">
+                    <a href="{% url 'orders:checkout' %}" class="flex items-center justify-center w-full py-4 bg-text text-surface font-bold uppercase tracking-widest text-xs rounded-xl shadow-md hover:bg-primary hover:-translate-y-0.5 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                        Proceed to Checkout
+                        <i data-lucide="arrow-right" class="w-4 h-4 ml-2"></i>
                     </a>
                 </div>
 
-                <div class="flex items-center justify-center gap-4 pt-4 opacity-50">
-                    <i data-lucide="shield-check" class="w-5 h-5 text-muted"></i>
-                    <p class="text-[10px] text-muted uppercase font-bold tracking-widest">Secure Checkout</p>
+                <div class="flex items-center justify-center gap-2 pt-2 text-muted/70">
+                    <i data-lucide="lock" class="w-3.5 h-3.5"></i>
+                    <p class="text-[10px] uppercase font-bold tracking-widest">Secure & Encrypted</p>
                 </div>
             </div>
         </aside>

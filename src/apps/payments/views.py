@@ -52,4 +52,6 @@ class ProcessPaymentView(View):
             shipping_cost=shipping_cost,
         )
 
-        return redirect('orders:confirmation', order_id=order.id)
+        from django.urls import reverse
+        url = reverse('orders:confirmation', kwargs={'order_id': order.id})
+        return redirect(f'{url}?new=1')

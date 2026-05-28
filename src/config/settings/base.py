@@ -17,6 +17,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
 
+    # cloudinary_storage must come BEFORE staticfiles
+    'cloudinary_storage',
+    'cloudinary',
+
     'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
 
@@ -25,10 +29,6 @@ INSTALLED_APPS = [
     'apps.store',
     'apps.orders',
     'apps.payments',
-
-    # Cloudinary for media storage
-    'cloudinary_storage',
-    'cloudinary',
 ]
 
 MIDDLEWARE = [
