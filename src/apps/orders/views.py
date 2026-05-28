@@ -45,9 +45,9 @@ class RemoveFromCartView(View):
         cart.remove(product_id, variant_id)
         
         return JsonResponse({
-            'ok': True, 
+            'ok': True,
             'cart_count': cart.get_count(),
-            'subtotal': cart.get_total()
+            'subtotal': float(cart.get_total())
         })
 
 
@@ -73,8 +73,8 @@ class UpdateCartView(View):
                 
         return JsonResponse({
             'ok': True,
-            'line_total': line_total,
-            'cart_total': cart.get_total(),
+            'line_total': float(line_total),
+            'cart_total': float(cart.get_total()),
             'cart_count': cart.get_count()
         })
 
