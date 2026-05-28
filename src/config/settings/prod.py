@@ -25,6 +25,14 @@ class CustomWhiteNoiseStorage(CompressedManifestStaticFilesStorage):
             else:
                 yield name, hashed_name, processed
 
+    def _compress_path(self, path):
+        # django-cloudinary-storage registers static files that don't physically exist
+        # on Render's filesystem. Skip them instead of crashing during compression.
+        try:
+            return list(super()._compress_path(path))
+        except FileNotFoundError:
+            return []
+
 STORAGES["staticfiles"] = {
     "BACKEND": "config.settings.prod.CustomWhiteNoiseStorage",
 }
