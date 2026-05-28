@@ -41,18 +41,37 @@
             <section id="orders" class="scroll-mt-32">
                 <div class="flex items-center justify-between mb-8">
                     <h2 class="font-serif text-2xl text-text">Recent Orders</h2>
-                    {% if orders %}
-                    <a href="#" class="text-xs font-bold uppercase tracking-widest text-primary hover:text-text transition-colors">View All</a>
-                    {% endif %}
+                    <a href="{% url 'orders:history' %}" class="relative inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-primary hover:text-text transition-colors focus:outline-none">
+                        View All
+                        {% if extra_update_count > 0 %}
+                        <span class="flex h-2.5 w-2.5">
+                            <span class="animate-ping absolute inline-flex h-2.5 w-2.5 rounded-full bg-danger opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-danger border border-surface"></span>
+                        </span>
+                        {% endif %}
+                    </a>
                 </div>
 
                 {% if orders %}
                 <div class="space-y-6">
-                    {% for order in orders|slice:":5" %}
-                    <div class="bg-surface border border-muted/20 rounded-lg overflow-hidden transition-shadow hover:shadow-md">
-                        <div class="bg-muted/5 p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-xs font-bold uppercase tracking-widest text-muted">
-                            <div class="flex flex-wrap gap-x-8 gap-y-2">
-                                <div>Order <span class="text-text">#{{ order.id }}</span></div>
+                    {% for order in orders %}
+                    <div class="rounded-lg overflow-hidden transition-all duration-300
+                        {% if order.id in updated_order_ids %}
+                            border-2 border-danger shadow-[0_0_18px_rgba(184,92,56,0.18)] bg-surface
+                        {% else %}
+                            border border-muted/20 bg-surface hover:shadow-md
+                        {% endif %}">
+                        <div class="p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-xs font-bold uppercase tracking-widest text-muted
+                            {% if order.id in updated_order_ids %}bg-danger/5{% else %}bg-muted/5{% endif %}">
+                            <div class="flex flex-wrap gap-x-8 gap-y-2 items-center">
+                                <div class="flex items-center gap-2">
+                                    Order <span class="text-text">#{{ order.id }}</span>
+                                    {% if order.id in updated_order_ids %}
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold tracking-widest bg-danger text-surface animate-pulse">
+                                        Status Updated
+                                    </span>
+                                    {% endif %}
+                                </div>
                                 <div>Placed <span class="text-text">{{ order.created_at|date:"M d, Y" }}</span></div>
                                 <div>Total <span class="text-text">₱{{ order.total|floatformat:2 }}</span></div>
                             </div>
@@ -63,7 +82,11 @@
                                     {% else %}bg-primary/10 text-primary{% endif %}">
                                     {{ order.status|upper }}
                                 </span>
-                                <a href="{% url 'orders:confirmation' order.id %}" class="text-primary hover:text-text transition-colors">View Details</a>
+                                {% if order.status == 'delivered' %}
+                                <a href="{% url 'orders:confirmation' order.id %}" class="text-[10px] font-bold uppercase tracking-widest text-surface bg-accent px-3 py-1.5 rounded hover:bg-accent/90 transition-colors ml-2">Rate & Review</a>
+                                {% else %}
+                                <a href="{% url 'orders:confirmation' order.id %}" class="text-primary hover:text-text transition-colors text-[10px] uppercase font-bold tracking-widest">View Details</a>
+                                {% endif %}
                             </div>
                         </div>
                         <div class="p-4 flex items-center gap-4 overflow-x-auto">

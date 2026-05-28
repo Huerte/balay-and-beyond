@@ -43,7 +43,7 @@
             
             <div class="flex-grow flex flex-col">
                 <h3 class="font-serif text-lg text-text leading-snug mb-1">
-                    <a href="{% url 'store:product_detail' item.product.slug %}" class="hover:text-primary transition-colors focus:outline-none focus:ring-1 focus:ring-primary rounded px-1 -mx-1">
+                    <a href="{% url 'store:product_detail' item.product.slug %}" class="hover:text-primary transition-colors focus:outline-none focus:ring-1 focus:ring-primary rounded px-1 -mx-1 line-clamp-2" title="{{ item.product.name }}">
                         {{ item.product.name }}
                     </a>
                 </h3>

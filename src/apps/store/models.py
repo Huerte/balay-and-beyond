@@ -105,6 +105,7 @@ class Review(models.Model):
     )
     rating = models.PositiveSmallIntegerField()
     body = models.TextField(blank=True)
+    is_anonymous = models.BooleanField(default=False, help_text="Hide user's name from public view")
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

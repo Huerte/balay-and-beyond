@@ -162,13 +162,13 @@
                     </div>
                     
                     <div class="space-y-1">
-                        <div class="flex justify-between items-start gap-2">
-                            <h3 class="font-serif text-lg text-text">
-                                <a href="{% url 'store:product_detail' product.slug %}" class="hover:text-primary transition-colors focus:outline-none focus:ring-1 focus:ring-primary rounded px-1 -mx-1">
+                        <div class="flex justify-between items-start gap-4">
+                            <h3 class="font-serif text-lg text-text flex-1 min-w-0">
+                                <a href="{% url 'store:product_detail' product.slug %}" class="hover:text-primary transition-colors focus:outline-none focus:ring-1 focus:ring-primary rounded px-1 -mx-1 line-clamp-2" title="{{ product.name }}">
                                     {{ product.name }}
                                 </a>
                             </h3>
-                            <div class="text-right">
+                            <div class="text-right flex-shrink-0">
                                 <p class="text-text font-medium">₱{{ product.price|floatformat:2 }}</p>
                                 {% if product.compare_price %}
                                 <p class="text-muted text-xs line-through">₱{{ product.compare_price|floatformat:2 }}</p>

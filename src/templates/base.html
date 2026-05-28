@@ -149,8 +149,14 @@
                     
                     <div class="relative flex items-center">
                         {% if user.is_authenticated %}
-                            <a href="{% url 'accounts:dashboard' %}" class="text-text hover:text-primary transition-colors duration-200 flex items-center" aria-label="Account Dashboard">
+                            <a href="{% url 'accounts:dashboard' %}" class="text-text hover:text-primary transition-colors duration-200 flex items-center relative" aria-label="Account Dashboard">
                                 <i data-lucide="user" class="w-6 h-6"></i>
+                                {% if user.has_unread_orders %}
+                                <span class="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+                                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-danger opacity-75"></span>
+                                  <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-danger border border-surface"></span>
+                                </span>
+                                {% endif %}
                             </a>
                         {% else %}
                             <a href="{% url 'accounts:login' %}" class="text-text hover:text-primary transition-colors duration-200 flex items-center" aria-label="Sign In">

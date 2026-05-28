@@ -5,92 +5,12 @@
 {% block content %}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
     
-    <div class="mb-12 border-b border-muted/20 pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <div>
-            <h1 class="font-serif text-4xl text-text leading-tight">Order History</h1>
-            <p class="text-muted mt-2">View and track your past orders.</p>
-        </div>
-        <div class="text-sm font-medium text-muted uppercase tracking-widest">
-            {{ page_obj.paginator.count|default:0 }} Orders
-        </div>
+    <div class="mb-12 border-b border-muted/20 pb-6">
+        <h1 class="font-serif text-4xl text-text leading-tight">Order History</h1>
+        <p class="text-muted mt-2">Track your active orders and review your past purchases.</p>
     </div>
 
-    {% if orders %}
-    <div class="bg-surface rounded-lg border border-muted/20 overflow-hidden shadow-sm">
-        <div class="overflow-x-auto custom-scrollbar">
-            <table class="w-full text-left whitespace-nowrap">
-                <thead>
-                    <tr class="bg-muted/5 border-b border-muted/20">
-                        <th scope="col" class="px-6 py-4 text-xs font-bold text-text uppercase tracking-widest">Order ID</th>
-                        <th scope="col" class="px-6 py-4 text-xs font-bold text-text uppercase tracking-widest">Date Placed</th>
-                        <th scope="col" class="px-6 py-4 text-xs font-bold text-text uppercase tracking-widest">Status</th>
-                        <th scope="col" class="px-6 py-4 text-xs font-bold text-text uppercase tracking-widest">Total</th>
-                        <th scope="col" class="px-6 py-4 text-xs font-bold text-text uppercase tracking-widest text-right">Action</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-muted/10">
-                    {% for order in orders %}
-                    <tr class="hover:bg-muted/5 transition-colors">
-                        <td class="px-6 py-5 text-sm font-medium text-text">
-                            #{{ order.id|stringformat:"06d" }}
-                        </td>
-                        <td class="px-6 py-5 text-sm text-muted">
-                            {{ order.created_at|date:"M d, Y" }}
-                        </td>
-                        <td class="px-6 py-5">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium uppercase tracking-widest
-                                {% if order.status == 'pending' %}bg-accent/10 text-accent
-                                {% elif order.status == 'processing' %}bg-primary/10 text-primary
-                                {% elif order.status == 'shipped' %}bg-success/10 text-success
-                                {% elif order.status == 'delivered' %}bg-success/10 text-success
-                                {% elif order.status == 'cancelled' %}bg-danger/10 text-danger
-                                {% else %}bg-muted/10 text-muted{% endif %}">
-                                {{ order.get_status_display|default:order.status }}
-                            </span>
-                        </td>
-                        <td class="px-6 py-5 text-sm font-medium text-text">
-                            ₱{{ order.total|floatformat:2 }}
-                        </td>
-                        <td class="px-6 py-5 text-right text-sm">
-                            <a href="{% url 'orders:confirmation' order.id %}" class="text-primary hover:text-text font-medium transition-colors focus:outline-none focus:underline">
-                                View Details
-                            </a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    
-    {% if is_paginated %}
-    <div class="mt-12 flex justify-center">
-        <nav class="flex items-center gap-2" aria-label="Pagination">
-            {% if page_obj.has_previous %}
-            <a href="?page={{ page_obj.previous_page_number }}" class="p-2 text-muted hover:text-primary transition-colors border border-transparent hover:border-muted/20 rounded focus:outline-none focus:ring-2 focus:ring-primary" aria-label="Previous page">
-                <i data-lucide="chevron-left" class="w-5 h-5"></i>
-            </a>
-            {% endif %}
-
-            {% for num in paginator.page_range %}
-                {% if page_obj.number == num %}
-                <span class="w-10 h-10 flex items-center justify-center border border-primary text-primary font-medium rounded">{{ num }}</span>
-                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                <a href="?page={{ num }}" class="w-10 h-10 flex items-center justify-center text-muted hover:text-primary hover:bg-muted/5 transition-colors rounded focus:outline-none focus:ring-2 focus:ring-primary">{{ num }}</a>
-                {% endif %}
-            {% endfor %}
-
-            {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}" class="p-2 text-muted hover:text-primary transition-colors border border-transparent hover:border-muted/20 rounded focus:outline-none focus:ring-2 focus:ring-primary" aria-label="Next page">
-                <i data-lucide="chevron-right" class="w-5 h-5"></i>
-            </a>
-            {% endif %}
-        </nav>
-    </div>
-    {% endif %}
-
-    {% else %}
+    {% if not in_progress_orders and not delivered_orders %}
     <div class="text-center py-24 bg-muted/5 rounded-lg border border-muted/10">
         <i data-lucide="package" class="w-12 h-12 text-muted/50 mx-auto mb-4"></i>
         <h2 class="font-serif text-2xl text-text mb-2">No orders yet</h2>
@@ -99,7 +19,223 @@
             Explore Shop
         </a>
     </div>
+    {% else %}
+
+    <div class="space-y-16">
+        
+        {% if in_progress_orders %}
+        <div>
+            <h2 class="font-serif text-2xl text-text mb-6">Orders in Progress</h2>
+            <div class="space-y-6">
+                {% for order in in_progress_orders %}
+                <div class="bg-surface rounded-2xl border {% if order.id in updated_order_ids %}border-danger shadow-[0_0_15px_rgba(184,92,56,0.15)]{% else %}border-muted/20{% endif %} overflow-hidden shadow-sm transition-all duration-300">
+                    <div class="px-6 py-4 {% if order.id in updated_order_ids %}bg-danger/5 border-b border-danger/20{% else %}bg-muted/5 border-b border-muted/10{% endif %} flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                            <div class="flex items-center gap-3">
+                                <p class="text-sm font-medium text-text">Order #{{ order.id|stringformat:"06d" }}</p>
+                                {% if order.id in updated_order_ids %}
+                                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest bg-danger text-surface animate-pulse">
+                                    Status Updated
+                                </span>
+                                {% endif %}
+                            </div>
+                            <p class="text-xs text-muted mt-1">Placed on {{ order.created_at|date:"M d, Y" }}</p>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium uppercase tracking-widest bg-primary/10 text-primary">
+                                {{ order.get_status_display|default:order.status }}
+                            </span>
+                            <a href="{% url 'orders:confirmation' order.id %}" class="text-sm font-bold uppercase tracking-widest text-primary hover:text-text transition-colors focus:outline-none focus:underline">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if delivered_orders %}
+        <div>
+            <h2 class="font-serif text-2xl text-text mb-6">Delivered Orders</h2>
+            <div class="space-y-8">
+                {% for order in delivered_orders %}
+                <div class="bg-surface rounded-2xl border {% if order.id in updated_order_ids %}border-danger shadow-[0_0_15px_rgba(184,92,56,0.15)]{% else %}border-muted/20{% endif %} overflow-hidden shadow-sm transition-all duration-300">
+                    <div class="px-6 py-4 {% if order.id in updated_order_ids %}bg-danger/5 border-b border-danger/20{% else %}bg-muted/5 border-b border-muted/10{% endif %} flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                            <div class="flex items-center gap-3">
+                                <p class="text-sm font-medium text-text">Order #{{ order.id|stringformat:"06d" }}</p>
+                                {% if order.id in updated_order_ids %}
+                                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest bg-danger text-surface animate-pulse">
+                                    Delivered
+                                </span>
+                                {% endif %}
+                            </div>
+                            <p class="text-xs text-muted mt-1">Delivered on {{ order.updated_at|date:"M d, Y" }}</p>
+                        </div>
+                        <a href="{% url 'orders:confirmation' order.id %}" class="text-sm font-bold uppercase tracking-widest text-primary hover:text-text transition-colors focus:outline-none focus:underline">
+                            Order Receipt
+                        </a>
+                    </div>
+                    <div class="divide-y divide-muted/10">
+                        {% for item in order.items.all %}
+                        <div class="p-6 flex flex-col sm:flex-row items-center gap-6">
+                            <div class="w-20 h-20 bg-muted/5 rounded flex-shrink-0 overflow-hidden">
+                                {% if item.product.images.all %}
+                                <img src="{{ item.product.images.all.0.url }}" alt="{{ item.product.name }}" class="w-full h-full object-cover">
+                                {% else %}
+                                <img src="https://picsum.photos/id/{{ item.product.id|default:1|add:100 }}/200/200" alt="{{ item.product.name }}" class="w-full h-full object-cover">
+                                {% endif %}
+                            </div>
+                            <div class="flex-grow text-center sm:text-left">
+                                <h4 class="font-serif text-lg text-text">
+                                    <a href="{% url 'store:product_detail' item.product.slug %}" class="hover:text-primary transition-colors focus:outline-none focus:underline">
+                                        {{ item.product.name }}
+                                    </a>
+                                </h4>
+                                <p class="text-sm text-muted mt-1">Qty: {{ item.quantity }}</p>
+                            </div>
+                            <div class="flex-shrink-0 w-full sm:w-auto mt-2 sm:mt-0">
+                                {% with user_review=item.product.user_reviews.0 %}
+                                <button type="button" onclick="toggleReviewForm('{{ item.id }}')" class="block w-full text-center sm:inline-block px-4 py-2 border border-primary text-primary font-bold uppercase tracking-widest text-[10px] rounded hover:bg-primary hover:text-surface transition-colors focus:outline-none focus:ring-2 focus:ring-primary">
+                                    {% if user_review %}Edit Review{% else %}Rate & Review{% endif %}
+                                </button>
+                                {% endwith %}
+                            </div>
+                        </div>
+                        
+                        {% with user_review=item.product.user_reviews.0 %}
+                        <div id="review-form-{{ item.id }}" class="hidden bg-muted/5 border-t border-muted/10 p-6">
+                            <form method="POST" action="{% url 'store:submit_review' item.product.slug %}" onsubmit="return validateReviewForm('{{ item.id }}')">
+                                {% csrf_token %}
+                                <div class="mb-4">
+                                    <label class="block text-[10px] font-bold uppercase tracking-widest text-muted mb-2">Rating</label>
+                                    <div class="flex gap-1">
+                                        {% for i in "12345" %}
+                                        <button type="button" data-star="{{ forloop.counter }}" onclick="setRating('{{ item.id }}', {{ forloop.counter }})" onmouseenter="previewRating('{{ item.id }}', {{ forloop.counter }})" onmouseleave="resetRatingPreview('{{ item.id }}')" class="star-btn-{{ item.id }} text-muted/30 hover:text-primary transition-colors focus:outline-none">
+                                            <i data-lucide="star" class="w-6 h-6 {% if user_review and forloop.counter <= user_review.rating %}fill-primary text-primary{% endif %}"></i>
+                                        </button>
+                                        {% endfor %}
+                                    </div>
+                                    <input type="hidden" name="rating" id="rating-input-{{ item.id }}" value="{{ user_review.rating|default:'' }}" required min="1">
+                                    <p id="rating-error-{{ item.id }}" class="text-danger text-xs mt-1 hidden">Please select a rating.</p>
+                                </div>
+                                <div class="mb-4">
+                                    <label for="review-body-{{ item.id }}" class="block text-[10px] font-bold uppercase tracking-widest text-muted mb-2">Your Thoughts</label>
+                                    <textarea id="review-body-{{ item.id }}" name="body" rows="3" class="w-full bg-surface border border-muted/30 rounded px-3 py-2 text-sm text-text placeholder-muted/50 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all resize-none">{{ user_review.body|default:'' }}</textarea>
+                                </div>
+                                <div class="mb-4 flex items-center">
+                                    <input type="checkbox" id="is_anonymous-{{ item.id }}" name="is_anonymous" class="w-3.5 h-3.5 text-primary bg-surface border-muted/30 rounded focus:ring-primary focus:ring-2" {% if user_review.is_anonymous %}checked{% endif %}>
+                                    <label for="is_anonymous-{{ item.id }}" class="ml-2 text-xs font-medium text-text select-none cursor-pointer">
+                                        Hide my name from public view
+                                    </label>
+                                </div>
+                                <div class="flex gap-3">
+                                    <button type="submit" class="px-6 py-2 bg-primary text-surface font-bold uppercase tracking-widest text-[10px] rounded hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-primary">
+                                        Submit
+                                    </button>
+                                    <button type="button" onclick="toggleReviewForm('{{ item.id }}')" class="px-6 py-2 border border-muted/30 text-text font-bold uppercase tracking-widest text-[10px] rounded hover:border-primary hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary">
+                                        Cancel
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                        {% endwith %}
+                        
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
     {% endif %}
 
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    function toggleReviewForm(itemId) {
+        // Close other open review forms to maintain a clean layout,
+        // inputs are preserved automatically since we only toggle visibility
+        document.querySelectorAll('[id^="review-form-"]').forEach(f => {
+            if (f.id !== 'review-form-' + itemId) {
+                f.classList.add('hidden');
+            }
+        });
+
+        const form = document.getElementById('review-form-' + itemId);
+        if (form) {
+            form.classList.toggle('hidden');
+            if (!form.classList.contains('hidden')) {
+                setTimeout(() => {
+                    form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }, 50);
+            }
+        }
+    }
+
+    function setRating(itemId, val) {
+        const input = document.getElementById('rating-input-' + itemId);
+        if (input) input.value = val;
+        updateStars(itemId, val);
+    }
+
+    function previewRating(itemId, val) {
+        updateStars(itemId, val);
+    }
+
+    function resetRatingPreview(itemId) {
+        const input = document.getElementById('rating-input-' + itemId);
+        const val = input && input.value ? parseInt(input.value) : 0;
+        updateStars(itemId, val);
+    }
+
+    function updateStars(itemId, val) {
+        const buttons = document.querySelectorAll('.star-btn-' + itemId);
+        buttons.forEach(btn => {
+            const starVal = parseInt(btn.dataset.star);
+            const icon = btn.querySelector('svg') || btn.querySelector('i');
+            if (icon) {
+                if (starVal <= val) {
+                    icon.classList.add('fill-primary', 'text-primary');
+                    icon.classList.remove('text-muted/30');
+                } else {
+                    icon.classList.remove('fill-primary', 'text-primary');
+                    icon.classList.add('text-muted/30');
+                }
+            }
+        });
+    }
+
+    function validateReviewForm(itemId) {
+        const rating = document.getElementById('rating-input-' + itemId).value;
+        const errorText = document.getElementById('rating-error-' + itemId);
+        if (!rating || parseInt(rating) < 1) {
+            if (errorText) errorText.classList.remove('hidden');
+            return false;
+        }
+        if (errorText) errorText.classList.add('hidden');
+        return true;
+    }
+
+    // Auto-scroll to the first updated order if any exist
+    document.addEventListener('DOMContentLoaded', () => {
+        // Find the first order box that has the updated styling (border-danger)
+        const firstUpdatedOrder = document.querySelector('.border-danger');
+        if (firstUpdatedOrder) {
+            // Slight delay to ensure the page is fully rendered before scrolling
+            setTimeout(() => {
+                firstUpdatedOrder.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                // Add a temporary pulsing effect to the whole container to draw attention
+                firstUpdatedOrder.classList.add('animate-pulse');
+                setTimeout(() => firstUpdatedOrder.classList.remove('animate-pulse'), 1500);
+            }, 300);
+        }
+    });
+</script>
 {% endblock %}

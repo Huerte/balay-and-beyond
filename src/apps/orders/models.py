@@ -28,6 +28,7 @@ class Order(models.Model):
     shipping_address = models.JSONField()
     shipping_method = models.CharField(max_length=50, blank=True)
     shipping_cost = models.DecimalField(max_digits=6, decimal_places=2, default=0)
+    has_unread_update = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -38,6 +39,19 @@ class Order(models.Model):
 
     def __str__(self):
         return f"Order #{self.id} - {self.status}"
+
+    def save(self, *args, **kwargs):
+        # Check if this is an existing order and status has changed
+        if self.pk and self.user:
+            orig = Order.objects.get(pk=self.pk)
+            if orig.status != self.status:
+                self.has_unread_update = True
+                self.user.has_unread_orders = True
+                self.user.save(update_fields=['has_unread_orders'])
+        elif not self.pk and self.user:
+            # New order
+            pass
+        super().save(*args, **kwargs)
 
 
 class OrderItem(models.Model):

@@ -4,7 +4,6 @@
 
 {% block content %}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-    
     <nav class="flex text-xs uppercase tracking-widest font-medium mb-8 overflow-x-auto whitespace-nowrap" aria-label="Breadcrumb">
         <ol class="flex items-center space-x-2">
             <li><a href="{% url 'store:home' %}" class="text-muted hover:text-primary transition-colors focus:outline-none focus:ring-1 focus:ring-primary rounded px-1">Home</a></li>
@@ -187,48 +186,71 @@
                         <h3 class="font-serif text-2xl text-text">Customer Reviews</h3>
                         <p class="text-muted text-sm mt-1">Based on {{ product.reviews.count }} reviews</p>
                     </div>
-                    {% if user.is_authenticated %}
-                    <button id="review-toggle-btn" onclick="toggleReviewForm()" class="px-6 py-3 border border-muted/30 text-xs font-bold uppercase tracking-widest rounded hover:border-primary hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary">
-                        Write a Review
-                    </button>
-                    {% else %}
+                    {% if not user.is_authenticated %}
                     <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="px-6 py-3 border border-muted/30 text-xs font-bold uppercase tracking-widest rounded hover:border-primary hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary">
                         Sign in to Review
                     </a>
+                    {% elif can_review %}
+                    <button id="review-toggle-btn" onclick="toggleReviewForm()" class="px-6 py-3 border border-muted/30 text-xs font-bold uppercase tracking-widest rounded hover:border-primary hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary">
+                        {% if has_reviewed %}Edit Review{% else %}Write a Review{% endif %}
+                    </button>
                     {% endif %}
                 </div>
 
-                <!-- Inline Review Form -->
                 {% if user.is_authenticated %}
-                <div id="review-form-panel" class="hidden mb-10 bg-muted/5 border border-muted/20 rounded-2xl p-8">
-                    <h4 class="font-serif text-xl text-text mb-6">Your Review</h4>
-                    <form method="POST" action="{% url 'store:submit_review' product.slug %}">
-                        {% csrf_token %}
-                        <div class="mb-6">
-                            <label class="block text-xs font-bold uppercase tracking-widest text-muted mb-3">Rating</label>
-                            <div class="flex gap-2" id="star-picker">
-                                {% for i in "12345" %}
-                                <button type="button" data-star="{{ forloop.counter }}" class="star-btn text-muted/30 hover:text-primary transition-colors focus:outline-none" aria-label="Rate {{ forloop.counter }} stars">
-                                    <i data-lucide="star" class="w-8 h-8"></i>
-                                </button>
-                                {% endfor %}
+                    {% if can_review %}
+                    {# --- Review form: shown to verified buyers (for creation or editing) --- #}
+                    <div id="review-form-panel" class="hidden mb-10 bg-muted/5 border border-muted/20 rounded-2xl p-8">
+                        <h4 class="font-serif text-xl text-text mb-6">{% if has_reviewed %}Edit Your Review{% else %}Your Review{% endif %}</h4>
+                        <form method="POST" action="{% url 'store:submit_review' product.slug %}" onsubmit="return validateReviewForm()">
+                            {% csrf_token %}
+                            <div class="mb-6">
+                                <label class="block text-xs font-bold uppercase tracking-widest text-muted mb-3">Rating</label>
+                                <div class="flex gap-2" id="star-picker">
+                                    {% for i in "12345" %}
+                                    <button type="button" data-star="{{ forloop.counter }}" class="star-btn text-muted/30 hover:text-primary transition-colors focus:outline-none" aria-label="Rate {{ forloop.counter }} stars">
+                                        <i data-lucide="star" class="w-8 h-8 {% if user_review and forloop.counter <= user_review.rating %}fill-primary text-primary{% endif %}"></i>
+                                    </button>
+                                    {% endfor %}
+                                </div>
+                                <input type="hidden" name="rating" id="rating-input" value="{{ user_review.rating|default:'' }}" required min="1">
+                                <p id="rating-error" class="text-danger text-xs mt-2 hidden">Please select a rating.</p>
                             </div>
-                            <input type="hidden" name="rating" id="rating-input" value="" required>
+                            <div class="mb-6">
+                                <label for="review-body" class="block text-xs font-bold uppercase tracking-widest text-muted mb-3">Your Thoughts</label>
+                                <textarea id="review-body" name="body" rows="4" class="w-full bg-surface border border-muted/30 rounded-lg px-4 py-3 text-text placeholder-muted/50 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all resize-none" placeholder="Share what you liked or disliked about this product...">{{ user_review.body|default:'' }}</textarea>
+                            </div>
+                            <div class="mb-8 flex items-center">
+                                <input type="checkbox" id="is_anonymous" name="is_anonymous" class="w-4 h-4 text-primary bg-surface border-muted/30 rounded focus:ring-primary focus:ring-2" {% if user_review.is_anonymous %}checked{% endif %}>
+                                <label for="is_anonymous" class="ml-2 text-sm font-medium text-text select-none cursor-pointer">
+                                    Hide my name from public view
+                                </label>
+                            </div>
+                            <div class="flex gap-4">
+                                <button type="submit" class="px-8 py-3 bg-primary text-surface font-bold uppercase tracking-widest text-xs rounded hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                                    {% if has_reviewed %}Update Review{% else %}Submit Review{% endif %}
+                                </button>
+                                <button type="button" onclick="toggleReviewForm()" class="px-8 py-3 border border-muted/30 text-text font-bold uppercase tracking-widest text-xs rounded hover:border-primary hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary">
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    {% else %}
+                    {# --- Not yet purchased: purchase-required notice --- #}
+                    <div class="mb-10 flex items-start gap-4 bg-muted/5 border border-muted/20 rounded-2xl p-6">
+                        <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-muted/10 text-muted">
+                            <i data-lucide="lock" class="w-5 h-5"></i>
                         </div>
-                        <div class="mb-6">
-                            <label for="review-body" class="block text-xs font-bold uppercase tracking-widest text-muted mb-3">Your Thoughts</label>
-                            <textarea id="review-body" name="body" rows="4" class="w-full bg-surface border border-muted/30 rounded-lg px-4 py-3 text-text placeholder-muted/50 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all resize-none" placeholder="Share what you liked or disliked about this product..."></textarea>
+                        <div>
+                            <p class="text-sm font-semibold text-text">Verified purchases only</p>
+                            <p class="text-xs text-muted mt-1">
+                                You can leave a review after your order has been delivered.
+                                <a href="{% url 'orders:history' %}" class="text-primary hover:underline ml-1 focus:outline-none focus:ring-1 focus:ring-primary rounded">View your orders</a>
+                            </p>
                         </div>
-                        <div class="flex gap-4">
-                            <button type="submit" class="px-8 py-3 bg-primary text-surface font-bold uppercase tracking-widest text-xs rounded hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
-                                Submit Review
-                            </button>
-                            <button type="button" onclick="toggleReviewForm()" class="px-8 py-3 border border-muted/30 text-text font-bold uppercase tracking-widest text-xs rounded hover:border-primary hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary">
-                                Cancel
-                            </button>
-                        </div>
-                    </form>
-                </div>
+                    </div>
+                    {% endif %}
                 {% endif %}
 
                 <div class="space-y-8">
@@ -244,7 +266,16 @@
                                 <span class="text-xs text-muted">{{ review.created_at|date:"M d, Y" }}</span>
                             </div>
                             <p class="text-sm text-muted mb-3">{{ review.body }}</p>
-                            <p class="text-xs text-text font-medium">— {{ review.user.get_full_name|default:review.user.email }}</p>
+                            <p class="text-xs text-text font-medium">
+                                — 
+                                {% if review.is_anonymous %}
+                                    {% with name=review.user.get_full_name|default:review.user.email %}
+                                        {{ name|first|upper }}***{{ name|last|upper }}
+                                    {% endwith %}
+                                {% else %}
+                                    {{ review.user.get_full_name|default:review.user.email }}
+                                {% endif %}
+                            </p>
                         </div>
                         {% endfor %}
                     {% else %}
@@ -330,8 +361,23 @@
         if (!panel) return;
         const isHidden = panel.classList.contains('hidden');
         panel.classList.toggle('hidden');
-        if (btn) btn.textContent = isHidden ? 'Cancel' : 'Write a Review';
+        if (btn) {
+            const hasReviewed = {{ has_reviewed|yesno:"true,false" }};
+            btn.textContent = isHidden ? 'Cancel' : (hasReviewed ? 'Edit Review' : 'Write a Review');
+        }
         if (isHidden) panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    // Client-side validation to ensure star rating is > 0
+    function validateReviewForm() {
+        const rating = document.getElementById('rating-input').value;
+        const errorText = document.getElementById('rating-error');
+        if (!rating || parseInt(rating) < 1) {
+            if (errorText) errorText.classList.remove('hidden');
+            return false;
+        }
+        if (errorText) errorText.classList.add('hidden');
+        return true;
     }
 
     // Star picker
