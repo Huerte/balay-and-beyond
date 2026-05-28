@@ -14,19 +14,35 @@ from . import services
 def _get_hero_images():
     """Return static URLs for every image inside static/assets/images/hero/.
 
-    Add any .jpg/.jpeg/.png/.webp/.avif file to that folder and it will be
-    served automatically. The folder is sorted alphabetically so filenames
-    control display order (hero1.jpg, hero2.jpg, …).
+    Scans STATICFILES_DIRS first (source directory with clean filenames),
+    then falls back to STATIC_ROOT. Uses Django's static() helper for
+    proper URL resolution in both dev and production (WhiteNoise manifest).
+    Add any .jpg/.jpeg/.png/.webp/.avif file to the hero/ folder and it
+    will be served automatically, sorted alphabetically.
     """
+    from django.templatetags.static import static as static_url
+
     extensions = {'.jpg', '.jpeg', '.png', '.webp', '.avif'}
-    urls = []
-    # STATICFILES_DIRS[0] is BASE_DIR / 'static'
-    hero_dir = os.path.join(settings.STATICFILES_DIRS[0], 'assets', 'images', 'hero')
-    if os.path.isdir(hero_dir):
-        for fname in sorted(os.listdir(hero_dir)):
-            if os.path.splitext(fname)[1].lower() in extensions:
-                urls.append(f"{settings.STATIC_URL}assets/images/hero/{fname}")
-    return urls
+    rel_path = os.path.join('assets', 'images', 'hero')
+
+    # Prefer the source static dir: clean filenames without manifest hashes
+    candidates = []
+    if settings.STATICFILES_DIRS:
+        candidates.append(os.path.join(settings.STATICFILES_DIRS[0], rel_path))
+
+    static_root = getattr(settings, 'STATIC_ROOT', None)
+    if static_root:
+        candidates.append(os.path.join(static_root, rel_path))
+
+    for hero_dir in candidates:
+        if os.path.isdir(hero_dir):
+            return [
+                static_url(f"assets/images/hero/{fname}")
+                for fname in sorted(os.listdir(hero_dir))
+                if os.path.splitext(fname)[1].lower() in extensions
+            ]
+
+    return []
 
 
 class HomeView(TemplateView):
