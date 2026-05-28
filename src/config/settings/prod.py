@@ -28,6 +28,8 @@ class CustomWhiteNoiseStorage(CompressedManifestStaticFilesStorage):
 STORAGES["staticfiles"] = {
     "BACKEND": "config.settings.prod.CustomWhiteNoiseStorage",
 }
+# Required to prevent django-cloudinary-storage from crashing on Django 5+ during collectstatic
+STATICFILES_STORAGE = "config.settings.prod.CustomWhiteNoiseStorage"
 
 import dj_database_url
 if 'DATABASE_URL' in os.environ:
