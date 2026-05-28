@@ -132,6 +132,11 @@
 
                     
                     {% if user.is_authenticated %}
+                    {% if user.is_staff %}
+                    <a href="{% url 'admin:index' %}" class="text-text hover:text-primary relative transition-colors duration-200 flex items-center" aria-label="Admin Panel">
+                        <i data-lucide="shield-half" class="w-6 h-6"></i>
+                    </a>
+                    {% endif %}
                     <a href="{% url 'store:wishlist' %}" class="text-text hover:text-primary relative transition-colors duration-200 flex items-center" aria-label="Wishlist">
                         <i data-lucide="heart" class="w-6 h-6"></i>
                         <span id="wishlist-count-badge" class="absolute -top-1 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-surface {% if not wishlist_count or wishlist_count == 0 %}hidden{% endif %}">{{ wishlist_count|default:0 }}</span>
@@ -219,6 +224,9 @@
                     <h3 class="text-sm font-bold tracking-wider text-text uppercase font-serif">Account</h3>
                     <ul class="mt-4 space-y-3">
                         {% if user.is_authenticated %}
+                        {% if user.is_staff %}
+                        <li><a href="{% url 'admin:index' %}" class="text-muted hover:text-primary text-sm transition-colors duration-200">Admin Panel</a></li>
+                        {% endif %}
                         <li><a href="{% url 'accounts:dashboard' %}" class="text-muted hover:text-primary text-sm transition-colors duration-200">My Dashboard</a></li>
                         <li><a href="{% url 'orders:history' %}" class="text-muted hover:text-primary text-sm transition-colors duration-200">Order History</a></li>
                         <li><a href="{% url 'store:wishlist' %}" class="text-muted hover:text-primary text-sm transition-colors duration-200">Wishlist</a></li>
